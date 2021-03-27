@@ -1,0 +1,25 @@
+Structure:
+
+    Catan Gamestate
+        Map
+            - Streets
+            - Cities
+            - Villages
+            - Ressource Tiles
+            - Probability Numbers
+
+        4 Player
+        
+    Catan Simulation (Game Logic)
+    Agents
+    Interface?
+    GameTree (Monte Carlo)
+
+
+
+Map
+ - Tile List (Ressource, Number)
+ - Adjacency Matrix (NxN - N = Anzahl Tiles)
+ - Structure List [
+     {"Type":"Village", "Player":"Blue", "Position":"X;Y"}
+ ]
