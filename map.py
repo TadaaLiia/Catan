@@ -9,6 +9,14 @@ class CatanMap:
     ]
     """
 
+    x = []
+    for i in range(36):
+        x.append([0 for x in range(36)])
+
+    for i in [1,4,5]: x[0][i] = 1
+
+    print(x)
+
     def __init__(self):
         self.TileList = []
     
