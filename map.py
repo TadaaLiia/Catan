@@ -10,16 +10,51 @@ class CatanMap:
     ]
     """
 
-    x = []
-    for i in range(36):
-        x.append([0 for x in range(36)])
-
-    for i in [1,4,5]: x[0][i] = 1
-
-    print(x)
-
     def __init__(self):
         self.TileList = []
+        self.Adjacency = self.generateAdjacency()
+
+    def generateAdjacency(self):
+        x = []
+        for i in range(37):
+            x.append([0 for jakob in range(37)])
+
+        TILES_1 = [5, 6, 7]
+        for tile in TILES_1:
+            nachbar = [tile - 5, tile - 4, tile - 1, tile + 1, tile + 5, tile + 6]
+            for n in nachbar:
+                x[tile][n] = 1
+
+        TILES_2 = [10, 11, 12, 13]
+        for tile in TILES_2:
+            nachbar = [tile - 6, tile - 5, tile - 1, tile + 1, tile + 6, tile + 7]
+            for n in nachbar:
+                x[tile][n] = 1
+
+        TILES_3 = list(range(16, 21))
+        for tile in TILES_3:
+            nachbar = [tile - 7, tile - 6, tile - 1, tile + 1, tile + 6, tile + 7]
+            for n in nachbar:
+                x[tile][n] = 1
+
+        TILES_4 = list(range(23, 27))
+        for tile in TILES_4:
+            nachbar = [tile - 7, tile - 6, tile - 1, tile + 1, tile + 5, tile + 6]
+            for n in nachbar:
+                x[tile][n] = 1
+
+        TILES_5 = [29, 30, 31]
+        for tile in TILES_5:
+            nachbar = [tile - 6, tile - 5, tile - 1, tile + 1, tile + 4, tile + 5]
+            for n in nachbar:
+                x[tile][n] = 1
+
+        for i in range(len(x)):
+            for j in x[i]:
+                if x[i][j] == 1:
+                    x[j][i] = 1
+
+        return x
 
     def generateMap(self, seed=None):
         AVAILABLE_TILES = {
@@ -56,7 +91,6 @@ class CatanMap:
                 self.TileList.append(randomTile)
 
         tile_order = [5, 6, 7, 13, 20, 26, 31, 30, 29, 23, 16, 10, 11, 12, 19, 25, 24, 17, 18]
-        print(tile_order)
 
         # Shift Tile Order
         shift = random.randint(0, 11)
