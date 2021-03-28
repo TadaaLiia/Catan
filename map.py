@@ -8,11 +8,14 @@ class CatanMap:
     - Structure List [
         {"Type":"Village", "Player":"Blue", "Position":"X;Y"}
     ]
-    """
+        """
 
     def __init__(self):
         self.TileList = []
         self.Adjacency = self.generateAdjacency()
+        self.ObjectList = []
+        self.initializeObjectList()
+        self.BanditPosition = 0
 
     def generateAdjacency(self):
         x = []
@@ -113,11 +116,38 @@ class CatanMap:
             assert self.TileList[tile][1] != 0
             if self.TileList[tile] == "DESERT":
                 self.TileList[tile] = ("DESERT", 0)
+                self.setBandit(tile)
             else:
                 self.TileList[tile] = (self.TileList[tile], AVAILABLE_NUMBERS.pop(0))
+
+    def initializeObjectList(self):
+        self.ObjectList.append({"player": None, "type": "PORT", "position": (0, 5)})
+        self.ObjectList.append({"player": None, "type": "PORT", "position": (8, 13)})
+        self.ObjectList.append({"player": None, "type": "PORT", "position": (20, 21)})
+        self.ObjectList.append({"player": None, "type": "PORT", "position": (29, 33)})
+        self.ObjectList.append({"player": None, "type": "SHEEP_PORT", "position": (2, 6)})
+        self.ObjectList.append({"player": None, "type": "ORE_PORT", "position": (9, 10)})
+        self.ObjectList.append({"player": None, "type": "WHEAT_PORT", "position": (22, 23)})
+        self.ObjectList.append({"player": None, "type": "CLAY_PORT", "position": (26, 32)})
+        self.ObjectList.append({"player": None, "type": "WOOD_PORT", "position": (30, 35)})
+
+    def buildStuff(self, player, type, position):
+        if type == "STREET":
+            assert len(position) == 2, "invalid position"
+        elif type == "VILLAGE" or type == "CITY":
+            assert len(position) == 3, "invalid position"
+        else:
+            print("incorrect type")
+            return
+        self.ObjectList.append({"player": player, "type": type, "position": position})
+
+    def setBandit(self, position):
+        assert type(position) == int, "invalid Bandit position"
+        self.BanditPosition = position
 
 
 if __name__ == "__main__":
     lia = CatanMap()
     lia.generateMap()
     print(lia.TileList)
+    print(lia.ObjectList)
