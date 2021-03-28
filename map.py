@@ -11,11 +11,10 @@ class CatanMap:
         """
 
     def __init__(self):
-        self.TileList = []
-        self.Adjacency = self.generateAdjacency()
-        self.ObjectList = []
-        self.initializeObjectList()
         self.BanditPosition = 0
+        self.TileList = self.generateMap()
+        self.Adjacency = self.generateAdjacency()
+        self.ObjectList = self.initializeObjectList()
 
     def generateAdjacency(self):
         x = []
@@ -82,16 +81,17 @@ class CatanMap:
             ("OCEAN", 0), ("OCEAN", 0), ("OCEAN", 0), ("OCEAN", 0)
         ]
 
+        tileList = []
         for tile in TILES:
             if tile[0] is not None:
-                self.TileList.append(tile)
+                tileList.append(tile)
             else:
                 randomTile = random.choice(list(AVAILABLE_TILES.keys()))
                 if AVAILABLE_TILES[randomTile] == 1:
                     del AVAILABLE_TILES[randomTile]
                 else:
                     AVAILABLE_TILES[randomTile] -= 1
-                self.TileList.append(randomTile)
+                tileList.append(randomTile)
 
         tile_order = [5, 6, 7, 13, 20, 26, 31, 30, 29, 23, 16, 10, 11, 12, 19, 25, 24, 17, 18]
 
@@ -113,24 +113,29 @@ class CatanMap:
 
         # Distribute Numbers
         for tile in tile_order:
-            assert self.TileList[tile][1] != 0
-            if self.TileList[tile] == "DESERT":
-                self.TileList[tile] = ("DESERT", 0)
+            assert tileList[tile][1] != 0
+            if tileList[tile] == "DESERT":
+                tileList[tile] = ("DESERT", 0)
                 self.setBandit(tile)
             else:
-                self.TileList[tile] = (self.TileList[tile], AVAILABLE_NUMBERS.pop(0))
+                tileList[tile] = (tileList[tile], AVAILABLE_NUMBERS.pop(0))
+
+        return tileList
 
     def initializeObjectList(self):
-        self.ObjectList.append({"player": None, "type": "PORT", "position": (0, 5)})
-        self.ObjectList.append({"player": None, "type": "PORT", "position": (8, 13)})
-        self.ObjectList.append({"player": None, "type": "PORT", "position": (20, 21)})
-        self.ObjectList.append({"player": None, "type": "PORT", "position": (29, 33)})
-        self.ObjectList.append({"player": None, "type": "SHEEP_PORT", "position": (2, 6)})
-        self.ObjectList.append({"player": None, "type": "ORE_PORT", "position": (9, 10)})
-        self.ObjectList.append({"player": None, "type": "WHEAT_PORT", "position": (22, 23)})
-        self.ObjectList.append({"player": None, "type": "CLAY_PORT", "position": (26, 32)})
-        self.ObjectList.append({"player": None, "type": "WOOD_PORT", "position": (30, 35)})
+        objectList = []
+        objectList.append({"player": None, "type": "PORT", "position": (0, 5)})
+        objectList.append({"player": None, "type": "PORT", "position": (8, 13)})
+        objectList.append({"player": None, "type": "PORT", "position": (20, 21)})
+        objectList.append({"player": None, "type": "PORT", "position": (29, 33)})
+        objectList.append({"player": None, "type": "SHEEP_PORT", "position": (2, 6)})
+        objectList.append({"player": None, "type": "ORE_PORT", "position": (9, 10)})
+        objectList.append({"player": None, "type": "WHEAT_PORT", "position": (22, 23)})
+        objectList.append({"player": None, "type": "CLAY_PORT", "position": (26, 32)})
+        objectList.append({"player": None, "type": "WOOD_PORT", "position": (30, 35)})
+        return objectList
 
+    # ----
     def buildStuff(self, player, type, position):
         if type == "STREET":
             assert len(position) == 2, "invalid position"
@@ -148,6 +153,3 @@ class CatanMap:
 
 if __name__ == "__main__":
     lia = CatanMap()
-    lia.generateMap()
-    print(lia.TileList)
-    print(lia.ObjectList)
