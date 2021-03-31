@@ -3,15 +3,47 @@ from player import Player
 
 class Gamestate:
 
-    def __init__(self, player=4):
+    def __init__(self, name1, name2, name3, name4=0):
         self.DevelopmentCards = self.initializeDevelopmentCards()
         self.ResourceCards = self.initializeResourceCards()
         self.Map = CatanMap()
-        self.Player1 = Player()
-        self.Player2 = Player()
-        self.Player3 = Player()
+        self.Player1 = Player(name1)
+        self.Player2 = Player(name2)
+        self.Player3 = Player(name3)
+        self.player = 3
+        if name4 != 0:
+            self.Player4 = Player(name4)
+            self.player = 4
+        self.PlayerList = self.initializePlayerList(self.player)
+
+    # ---- getter ----
+    def getDevelopmentCards(self):
+        return self.DevelopmentCards
+
+    def getResourceCards(self):
+        return self.ResourceCards
+
+    def getPlayerList(self):
+        return self.PlayerList
+
+    def getPlayerToName(self, name):
+        if self.Player1.getName() == name:
+            return self.Player1
+        elif self.Player2.getName() == name:
+            return self.Player2
+        elif self.Player3.getName() == name:
+            return self.Player3
+        elif self.player == 4 and self.Player4.getName() == name:
+            return self.Player4
+        else:
+            print("no player")
+
+    # ---- Initialization ----
+    def initializePlayerList(self, player):
+        players = [self.Player1, self.Player2, self.Player3]
         if player == 4:
-            self.Player4 = Player()
+            players.append(self.Player4)
+        return players
 
     def initializeDevelopmentCards(self):
         developmentCards = {
@@ -33,7 +65,7 @@ class Gamestate:
         }
         return resourceCards
 
-    # ----
+    # ---- update ----
     def updateDevelopmentCards(self, card):
         assert card in self.DevelopmentCards, "invalid operation"
         if self.DevelopmentCards[card] == 1:

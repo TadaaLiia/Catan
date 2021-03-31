@@ -20,6 +20,28 @@ class CatanMap:
         self.TileList = self.generateMap()
         self.ObjectList = self.initializeObjectList()
 
+    # ---- getter ----
+    def getBanditPosition(self):
+        return self.BanditPosition
+
+    def getAdjacency(self):
+        return self.Adjacency
+
+    def getAvailableNodes(self):
+        return self.AvailableNodes
+
+    def getTileList(self):
+        return self.TileList
+
+    def getObjectList(self):
+        return self.ObjectList
+
+    # ---- setter ----
+    def setBanditPosition(self, position):
+        assert type(position) == int, "invalid Bandit position"
+        self.BanditPosition = position
+
+    # ---- generation and initialization ----
     def generateAdjacency(self):
         x = []
         for i in range(37):
@@ -59,7 +81,6 @@ class CatanMap:
             for n in nachbar:
                 x[tile][n] = 1
                 x[n][tile] = 1
-
         return x
 
     def generateNodeList(self):
@@ -160,10 +181,9 @@ class CatanMap:
             assert tileList[tile][1] != 0
             if tileList[tile] == "DESERT":
                 tileList[tile] = ("DESERT", 0)
-                self.setBandit(tile)
+                self.setBanditPosition(tile)
             else:
                 tileList[tile] = (tileList[tile], AVAILABLE_NUMBERS.pop(0))
-
         return tileList
 
     def initializeObjectList(self):
@@ -179,12 +199,12 @@ class CatanMap:
         objectList.append({"player": None, "type": "WOOD_PORT", "position": (30, 35)})
         return objectList
 
-    # ----
+    # ---- Objects
     def updateAvailableNodes(self, position):
         # sorted position
         pos = tuple(sorted(position))
         # valid position?
-        nodes = self.AvailableNodes
+        nodes = self.getAvailableNodes()
         assert pos in nodes, "invalid village position"
         # delete position and 2 or 3 adjacent poitions
         nodes.remove(pos)
@@ -198,7 +218,7 @@ class CatanMap:
         self.AvailableNodes = nodes
 
     def getPlayerShit(self, player):
-        objects = [x for x in self.ObjectList if x["player"] == player]
+        objects = [x for x in self.getObjectList() if x["player"] == player]
         buildings = [x["position"] for x in objects if x["type"] != "STREET"]
         streets = [x["position"] for x in objects if x["type"] == "STREET"]
         return objects, buildings, streets
@@ -207,7 +227,7 @@ class CatanMap:
         # All player Objects
         playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
         # Streets
-        allStreets = [x["position"] for x in self.ObjectList if x["type"] == "STREET"]
+        allStreets = [x["position"] for x in self.getObjectList() if x["type"] == "STREET"]
         # Streets around Cities and Villages
         availableStreets = []
         for b in playerBuildings:
@@ -218,29 +238,30 @@ class CatanMap:
         for street in playerStreets:
             for x in range(37):
                 # common neighbors
-                if self.Adjacency[street[0]][x] == 1 and self.Adjacency[street[1]][x] == 1:
+                if self.getAdjacency()[street[0]][x] == 1 and self.getAdjacency()[street[1]][x] == 1:
                     availableStreets.append((x, street[0]))
                     availableStreets.append((x, street[1]))
         # remove Streets in Oceans or unavailable streets
         final = []
         for street in availableStreets:
-            if self.Adjacency[street[0]][street[1]] == 1 and street not in allStreets:
+            if self.getAdjacency()[street[0]][street[1]] == 1 and street not in allStreets:
                 final.append(tuple(sorted(street)))
         return sorted(final)
 
     def getAvailableVillages(self, player, round=1):
         if round == 0:
-            return self.AvailableNodes
+            return self.getAvailableNodes()
         else:
             playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
             availableVillages = []
-            for node in self.AvailableNodes:
+            for node in self.getAvailableNodes():
                 # angrenzende strasse an nodes
                 if (node[0], node[1]) in playerStreets or (node[0], node[2]) in playerStreets or (node[1], node[2]) in playerStreets:
                     availableVillages.append(node)
             return sorted(availableVillages)
 
-    def getAvailableCities(self, player):
+    def getAvailableCities(self, player, round=1):
+        assert round != 0, "you are not allowed to build cities."
         playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
         return [x["position"] for x in playerObjects if x["type"] == "VILLAGE"]
 
@@ -267,17 +288,40 @@ class CatanMap:
             print("incorrect type")
             return
 
-    def setBandit(self, position):
-        assert type(position) == int, "invalid Bandit position"
-        self.BanditPosition = position
+    # ---- Tiles
+    def getTilesToValue(self, value):
+        tiles = []
+        i = 0
+        for tile in self.getTileList():
+            if tile[1] == value:
+                tiles.append((i, tile[0]))
+            i += 1
+        return(tiles)
+
+    def getVillagesToTile(self, tile):
+        allVillages = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == "VILLAGE"]
+        villages = []
+        for v in allVillages:
+            if v[1][0] == tile or v[1][1] == tile or v[1][2] == tile:
+                villages.append(v[0])
+        return villages
+
+    def getCitiesToTile(self, tile):
+        allCities = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == "CITY"]
+        cities = []
+        for c in allCities:
+            if c[1][0] == tile or c[1][1] == tile or c[1][2] == tile:
+                cities.append(c[0])
+        return cities
 
 
 if __name__ == "__main__":
     lia = CatanMap()
     lia.buildStuff("jakob", "VILLAGE", (4, 5, 10), 0)
-    lia.getAvailableCities("jakob")
     lia.buildStuff("jakob", "CITY", (4, 5, 10))
     lia.buildStuff("jakob", "VILLAGE", (2, 6, 1), 0)
     lia.buildStuff("jakob", "STREET", (5, 10))
     lia.buildStuff("jakob", "STREET", (11, 10))
     lia.buildStuff("jakob", "VILLAGE", (10, 11, 17))
+    lia.buildStuff("lia", "VILLAGE", (13, 19, 20), 0)
+    lia.buildStuff("jakob", "VILLAGE", (9, 10, 16), 0)

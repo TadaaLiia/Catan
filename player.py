@@ -10,12 +10,37 @@ class Player:
     - pdateDevelopmentCards: +/- Card
     """
 
-    def __init__(self):
+    def __init__(self, name):
+        self.Name = name
         self.Priority = 0
         self.AvailableObjects = self.initializeAvailableObjects()
         self.ResourceCards = self.initializeResourceCards()
         self.DevelopmentCards = []
 
+    # ---- getter ----
+    def getName(self):
+        return self.Name
+
+    def getPriority(self):
+        return self.Priority
+
+    def getAvailableObjects(self):
+        return self.AvailableObjects
+
+    def getResourceCards(self):
+        return self.ResourceCards
+
+    def getDevelopmentCards(self):
+        return self.DevelopmentCards
+
+    # ---- setter ----
+    def setName(self, name):
+        self.Name = name
+
+    def setPriority(self, prio):
+        self.Priority = prio
+
+    # ---- initialization ----
     def initializeAvailableObjects(self):
         availableObjects = {
             "CITY": 4,
@@ -34,7 +59,7 @@ class Player:
         }
         return resourceCards
 
-    # ----
+    # ---- update ----
     def updateAvailableObjects(self, object, flag=0):
         assert object in self.AvailableObjects, "invalid object"
 
