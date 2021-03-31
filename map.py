@@ -3,17 +3,21 @@ import random
 
 class CatanMap:
     """
-    - Tile List (Ressource, Number)
-    - Adjacency Matrix (NxN - N = Anzahl Tiles)
-    - Structure List [
-        {"Type":"Village", "Player":"Blue", "Position":"X;Y"}
-    ]
-        """
+    - BanditPosition: int, tileNumber
+    - Adjacency: Matrix(36x36), adjacent tiles
+    - AvailableNodes: List, availableNodes(x,y,z)
+    - TileList: List, (TileType, value)
+    - ObjectList: {player:green, type:a, position:(x,y)}
+
+    - buildStuff: objectList.append
+    - setBandit: newTileNumber
+    """
 
     def __init__(self):
         self.BanditPosition = 0
-        self.TileList = self.generateMap()
         self.Adjacency = self.generateAdjacency()
+        self.AvailableNodes = self.generateNodeList()
+        self.TileList = self.generateMap()
         self.ObjectList = self.initializeObjectList()
 
     def generateAdjacency(self):
@@ -26,37 +30,77 @@ class CatanMap:
             nachbar = [tile - 5, tile - 4, tile - 1, tile + 1, tile + 5, tile + 6]
             for n in nachbar:
                 x[tile][n] = 1
+                x[n][tile] = 1
 
         TILES_2 = [10, 11, 12, 13]
         for tile in TILES_2:
             nachbar = [tile - 6, tile - 5, tile - 1, tile + 1, tile + 6, tile + 7]
             for n in nachbar:
                 x[tile][n] = 1
+                x[n][tile] = 1
 
         TILES_3 = list(range(16, 21))
         for tile in TILES_3:
             nachbar = [tile - 7, tile - 6, tile - 1, tile + 1, tile + 6, tile + 7]
             for n in nachbar:
                 x[tile][n] = 1
+                x[n][tile] = 1
 
         TILES_4 = list(range(23, 27))
         for tile in TILES_4:
             nachbar = [tile - 7, tile - 6, tile - 1, tile + 1, tile + 5, tile + 6]
             for n in nachbar:
                 x[tile][n] = 1
+                x[n][tile] = 1
 
         TILES_5 = [29, 30, 31]
         for tile in TILES_5:
             nachbar = [tile - 6, tile - 5, tile - 1, tile + 1, tile + 4, tile + 5]
             for n in nachbar:
                 x[tile][n] = 1
-
-        for i in range(len(x)):
-            for j in x[i]:
-                if x[i][j] == 1:
-                    x[j][i] = 1
+                x[n][tile] = 1
 
         return x
+
+    def generateNodeList(self):
+        nodeList = []
+
+        TILES_1 = [5, 6, 7]
+        for tile in TILES_1:
+            nodeList.append([tile - 5, tile - 4, tile])
+            nodeList.append([tile - 4, tile + 1, tile])
+            nodeList.append([tile + 1, tile + 6, tile])
+            nodeList.append([tile + 5, tile + 6, tile])
+            nodeList.append([tile + 5, tile - 1, tile])
+            nodeList.append([tile - 5, tile - 1, tile])
+
+        nodeList.append([4, 9, 10])
+        nodeList.append([8, 13, 14])
+
+        TILES_3 = list(range(16, 21))
+        for tile in TILES_3:
+            nodeList.append([tile - 7, tile - 6, tile])
+            nodeList.append([tile - 6, tile + 1, tile])
+            nodeList.append([tile + 1, tile + 7, tile])
+            nodeList.append([tile + 7, tile + 6, tile])
+            nodeList.append([tile + 6, tile - 1, tile])
+            nodeList.append([tile - 7, tile - 1, tile])
+
+        nodeList.append([22, 23, 28])
+        nodeList.append([26, 27, 32])
+
+        TILES_5 = [29, 30, 31]
+        for tile in TILES_5:
+            nodeList.append([tile - 6, tile - 5, tile])
+            nodeList.append([tile - 5, tile + 1, tile])
+            nodeList.append([tile + 1, tile + 5, tile])
+            nodeList.append([tile + 5, tile + 4, tile])
+            nodeList.append([tile + 4, tile - 1, tile])
+            nodeList.append([tile - 6, tile - 1, tile])
+
+        # remove all duplicates and permutations in nested list
+        nodeList = list(set(map(lambda x: tuple(sorted(x)), nodeList)))
+        return sorted(nodeList)
 
     def generateMap(self, seed=None):
         AVAILABLE_TILES = {
@@ -136,15 +180,92 @@ class CatanMap:
         return objectList
 
     # ----
-    def buildStuff(self, player, type, position):
+    def updateAvailableNodes(self, position):
+        # sorted position
+        pos = tuple(sorted(position))
+        # valid position?
+        nodes = self.AvailableNodes
+        assert pos in nodes, "invalid village position"
+        # delete position and 2 or 3 adjacent poitions
+        nodes.remove(pos)
+        for node in nodes:
+            if pos[0] in node and pos[1] in node:
+                nodes.remove(node)
+            elif pos[1] in node and pos[2] in node:
+                nodes.remove(node)
+            elif pos[0] in node and pos[2] in node:
+                nodes.remove(node)
+        self.AvailableNodes = nodes
+
+    def getPlayerShit(self, player):
+        objects = [x for x in self.ObjectList if x["player"] == player]
+        buildings = [x["position"] for x in objects if x["type"] != "STREET"]
+        streets = [x["position"] for x in objects if x["type"] == "STREET"]
+        return objects, buildings, streets
+
+    def getAvailableStreets(self, player):
+        # All player Objects
+        playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
+        # Streets
+        allStreets = [x["position"] for x in self.ObjectList if x["type"] == "STREET"]
+        # Streets around Cities and Villages
+        availableStreets = []
+        for b in playerBuildings:
+            availableStreets.append((b[0], b[1]))
+            availableStreets.append((b[0], b[2]))
+            availableStreets.append((b[1], b[2]))
+        # street extension
+        for street in playerStreets:
+            for x in range(37):
+                # common neighbors
+                if self.Adjacency[street[0]][x] == 1 and self.Adjacency[street[1]][x] == 1:
+                    availableStreets.append((x, street[0]))
+                    availableStreets.append((x, street[1]))
+        # remove Streets in Oceans or unavailable streets
+        final = []
+        for street in availableStreets:
+            if self.Adjacency[street[0]][street[1]] == 1 and street not in allStreets:
+                final.append(tuple(sorted(street)))
+        return sorted(final)
+
+    def getAvailableVillages(self, player, round=1):
+        if round == 0:
+            return self.AvailableNodes
+        else:
+            playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
+            availableVillages = []
+            for node in self.AvailableNodes:
+                # angrenzende strasse an nodes
+                if (node[0], node[1]) in playerStreets or (node[0], node[2]) in playerStreets or (node[1], node[2]) in playerStreets:
+                    availableVillages.append(node)
+            return sorted(availableVillages)
+
+    def getAvailableCities(self, player):
+        playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
+        return [x["position"] for x in playerObjects if x["type"] == "VILLAGE"]
+
+    def buildStuff(self, player, type, position, round=1):
+        pos = tuple(sorted(position))
+        # Street -> (x,y) in available streets(player)
         if type == "STREET":
-            assert len(position) == 2, "invalid position"
-        elif type == "VILLAGE" or type == "CITY":
-            assert len(position) == 3, "invalid position"
+            assert len(pos) == 2, "invalid position"
+            assert pos in self.getAvailableStreets(player), "street not available"
+            self.ObjectList.append({"player": player, "type": type, "position": pos})
+        # Village -> (x,y,z) in availableNodes
+        elif type == "VILLAGE":
+            assert len(pos) == 3, "invalid position"
+            assert pos in self.getAvailableVillages(player, round), "node not available or two streets required!"
+            self.ObjectList.append({"player": player, "type": type, "position": pos})
+            self.updateAvailableNodes(pos)
+        # City -> {player,village,(x,y,z)} in ObjectList
+        elif type == "CITY":
+            assert len(pos) == 3, "invalid position"
+            assert pos in self.getAvailableCities(player), "no village available"
+            self.ObjectList.append({"player": player, "type": type, "position": pos})
+            self.ObjectList.remove({"player": player, "type": "VILLAGE", "position": pos})
         else:
             print("incorrect type")
             return
-        self.ObjectList.append({"player": player, "type": type, "position": position})
 
     def setBandit(self, position):
         assert type(position) == int, "invalid Bandit position"
@@ -153,3 +274,10 @@ class CatanMap:
 
 if __name__ == "__main__":
     lia = CatanMap()
+    lia.buildStuff("jakob", "VILLAGE", (4, 5, 10), 0)
+    lia.getAvailableCities("jakob")
+    lia.buildStuff("jakob", "CITY", (4, 5, 10))
+    lia.buildStuff("jakob", "VILLAGE", (2, 6, 1), 0)
+    lia.buildStuff("jakob", "STREET", (5, 10))
+    lia.buildStuff("jakob", "STREET", (11, 10))
+    lia.buildStuff("jakob", "VILLAGE", (10, 11, 17))

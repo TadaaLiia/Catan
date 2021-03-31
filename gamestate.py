@@ -1,17 +1,17 @@
-from map import Map
+from map import CatanMap
 from player import Player
 
-class Gamestate():
+class Gamestate:
 
     def __init__(self, player=4):
         self.DevelopmentCards = self.initializeDevelopmentCards()
         self.ResourceCards = self.initializeResourceCards()
-        self.map = Map()
-        self.player1 = Player()
-        self.player2 = Player()
-        self.player3 = Player()
+        self.Map = CatanMap()
+        self.Player1 = Player()
+        self.Player2 = Player()
+        self.Player3 = Player()
         if player == 4:
-            self.player4 = Player()
+            self.Player4 = Player()
 
     def initializeDevelopmentCards(self):
         developmentCards = {

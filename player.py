@@ -1,8 +1,17 @@
 class Player:
+    """
+    - Priority: int 1-4
+    - AvailableObjects: {City:4, Village:5, Street:15}
+    - ResourceCards: {wheat:0, ore:0, sheep:0, wood:0, clay:0}
+    - DevelopmentCards: list
+
+    - updateAvailableObjects: +/- Object
+    - updateResourceCard: +/- Card
+    - pdateDevelopmentCards: +/- Card
+    """
 
     def __init__(self):
         self.Priority = 0
-        self.ObjectList = []
         self.AvailableObjects = self.initializeAvailableObjects()
         self.ResourceCards = self.initializeResourceCards()
         self.DevelopmentCards = []
