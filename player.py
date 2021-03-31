@@ -87,7 +87,7 @@ class Player:
                     del self.DevelopmentCards[self.DevelopmentCards.index(developmentCard)]
                     break
         else:
-            self.DevelopmentCards.append((card, round))
+            self.getDevelopmentCards().append((card, round))
 
 
 if __name__ == "__main__":

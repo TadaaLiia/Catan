@@ -16,6 +16,44 @@ class Simulation:
             self.handOutCards(r)
         print(r)
 
+    # ---- Interaction with gamestate
+    def getRound(self):
+        return self.gamestate.getRound()
+
+    def incRound(self):
+        self.gamestate.incRound()
+
+    # ---- Interaction with CatanMap ----
+    def getObjectList(self):
+        return self.gamestate.Map.getObjectList()
+
+    def getAvailableStreetPositions(self, player):
+        return self.gamestate.Map.getAvailableStreets(player)
+
+    def getAvailableVillagePositions(self, player):
+        return self.gamestate.Map.getAvailableVillages(player, self.getRound())
+
+    def getAvailableCityPositions(self, player):
+        return self.gamestate.Map.getAvailableCities(player, self.getRound())
+
+    def buildObject(self, player, type, position):
+        self.gamestate.Map.buildStuff(player, type, position, self.getRound())
+
+    def bandit(self, position):
+        self.gamestate.Map.setBanditPosition(position)
+
+    # ---- Interaction with Player ----
+    def priorityRoll(self, player=4):
+        begin = random.randrange(player) + 1
+        self.gamestate.Player1.Priority = (1 + begin) % player + 1
+        self.gamestate.Player2.Priority = (2 + begin) % player + 1
+        self.gamestate.Player3.Priority = (3 + begin) % player + 1
+        if player == 4:
+            self.gamestate.Player4.Priority = (4 + begin) % player + 1
+
+    def giveResourceCards(self, playerName, card):
+        self.gamestate.getPlayerToName(playerName).updateResourceCards(card, 1)
+
     def handOutCards(self, roll):
         tiles = self.gamestate.Map.getTilesToValue(roll)
         players = self.gamestate.getPlayerList()
@@ -31,53 +69,27 @@ class Simulation:
                         self.giveResourceCards(player.getName(), tile[1])
                         self.giveResourceCards(player.getName(), tile[1])
 
-    # ---- Interaction with CatanMap ----
-
-    def getObjectList(self):
-        return self.gamestate.Map.getObjectList()
-
-    def getAvailableStreetPositions(self, player):
-        return self.gamestate.Map.getAvailableStreets(player)
-
-    def getAvailableVillagePositions(self, player, round=1):
-        return self.gamestate.Map.getAvailableVillages(player, round)
-
-    def getAvailableCityPositions(self, player, round=1):
-        return self.gamestate.Map.getAvailableCities(player, round)
-
-    def buildObject(self, player, type, position, round=1):
-        self.gamestate.Map.buildStuff(player, type, position, round)
-
-    def bandit(self, position):
-        self.gamestate.Map.setBanditPosition(position)
-
-    # ---- Interaction with Player
-
-    def priorityRoll(self, player=4):
-        begin = random.randrange(player) + 1
-        self.gamestate.Player1.Priority = (1 + begin) % player + 1
-        self.gamestate.Player2.Priority = (2 + begin) % player + 1
-        self.gamestate.Player3.Priority = (3 + begin) % player + 1
-        if player == 4:
-            self.gamestate.Player4.Priority = (4 + begin) % player + 1
-
-    def giveResourceCards(self, playerName, card):
-        self.gamestate.getPlayerToName(playerName).updateResourceCards(card, 1)
+    def drawDevelopmentCard(self, playerName):
+        card = self.gamestate.getRandomDevCard()
+        self.gamestate.getPlayerToName(playerName).updateDevelopmentCards(card, self.getRound())
 
 
 if __name__ == "__main__":
     gs = Gamestate("lia", "jakob", "edgar")
     sim = Simulation(gs)
 
-    sim.buildObject("jakob", "VILLAGE", (4, 5, 10), 0)
+    sim.buildObject("jakob", "VILLAGE", (4, 5, 10))
     sim.buildObject("jakob", "CITY", (4, 5, 10))
-    sim.buildObject("jakob", "VILLAGE", (2, 6, 1), 0)
+    sim.buildObject("jakob", "VILLAGE", (2, 6, 1))
     sim.buildObject("jakob", "STREET", (5, 10))
     sim.buildObject("jakob", "STREET", (11, 10))
-    sim.buildObject("jakob", "VILLAGE", (10, 11, 17))
-    sim.buildObject("lia", "VILLAGE", (13, 19, 20), 0)
-    sim.buildObject("lia", "VILLAGE", (25, 30, 31), 0)
-
+    sim.buildObject("lia", "VILLAGE", (13, 19, 20))
+    sim.buildObject("lia", "VILLAGE", (25, 30, 31))
+    sim.incRound()
+    sim.drawDevelopmentCard("lia")
+    sim.incRound()
+    sim.drawDevelopmentCard("lia")
+    print(sim.gamestate.getPlayerToName("lia").getDevelopmentCards())
 # liste der moves
 # nächster gamestate nach move
 # simulate random game: 1 gewonnen

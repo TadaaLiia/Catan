@@ -14,12 +14,3 @@ Structure:
     Agents
     Interface?
     GameTree (Monte Carlo)
-
-
-
-Map
- - Tile List (Ressource, Number)
- - Adjacency Matrix (NxN - N = Anzahl Tiles)
- - Structure List [
-     {"Type":"Village", "Player":"Blue", "Position":"X;Y"}
- ]

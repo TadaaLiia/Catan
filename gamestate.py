@@ -1,10 +1,12 @@
 from map import CatanMap
 from player import Player
+import random
 
 class Gamestate:
 
     def __init__(self, name1, name2, name3, name4=0):
         self.DevelopmentCards = self.initializeDevelopmentCards()
+        self.CountDevCards = 25
         self.ResourceCards = self.initializeResourceCards()
         self.Map = CatanMap()
         self.Player1 = Player(name1)
@@ -15,6 +17,7 @@ class Gamestate:
             self.Player4 = Player(name4)
             self.player = 4
         self.PlayerList = self.initializePlayerList(self.player)
+        self.Round = 0
 
     # ---- getter ----
     def getDevelopmentCards(self):
@@ -23,8 +26,23 @@ class Gamestate:
     def getResourceCards(self):
         return self.ResourceCards
 
+    def getCountDev(self):
+        return self.CountDevCards
+
+    def getRandomDevCard(self):
+        '''
+        update wird direkt aufgerufen, noch nicht random
+        '''
+        dev = list(self.getDevelopmentCards().keys())
+        rand = random.randrange(len(dev))
+        self.updateDevelopmentCards(dev[rand])
+        return dev[rand]
+
     def getPlayerList(self):
         return self.PlayerList
+
+    def getRound(self):
+        return self.Round
 
     def getPlayerToName(self, name):
         if self.Player1.getName() == name:
@@ -72,6 +90,7 @@ class Gamestate:
             del(self.DevelopmentCards[card])
         else:
             self.DevelopmentCards[card] -= 1
+        self.decCountDev()
 
     def updateResourceCards(self, card, flag=0):
         assert card in self.ResourceCards, "invalid operation"
@@ -83,6 +102,13 @@ class Gamestate:
         else:
             self.ResourceCards[card] -= 1
 
+    def incRound(self):
+        self.Round += 1
+
+    def decCountDev(self):
+        self.CountDevCards -= 1
+
 
 if __name__ == "__main__":
-    lille = Gamestate()
+    lille = Gamestate("lia", "jakob", "edgar")
+    print(lille.getRandomDevCard())
