@@ -1,3 +1,6 @@
+import random
+
+
 class Player:
     """
     - Priority: int 1-4
@@ -107,10 +110,20 @@ class Player:
         for card in self.getResourceCards().values():
             sum += card
         if sum > 7:
-            discard = int(sum / 2)
+            for i in range(int(sum / 2)):
+                randomCard = self.getRandomResourceCard()
+                self.updateResourceCards(randomCard)
 
     def getRandomResourceCard(self):
-        pass
+        sum = 0
+        for i in self.getResourceCards().values():
+            sum += i
+        rand = random.randrange(sum)
+        for k, v in self.getResourceCards().items():
+            if rand > v:
+                rand -= v
+            else:
+                return k
 
 
 if __name__ == "__main__":

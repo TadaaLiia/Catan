@@ -19,10 +19,23 @@ class Simulation:
                 if answer == 1:
                     break
         r = self.roll()
+        print(r)
         if r != 7:
             self.handOutCards(r)
         elif r == 7:
-            pass
+            self.roll7(playerName)
+
+    def roll7(self, playerName):
+        position = input("bandit position")
+        assert type(position) == int, "invalid position"
+        self.bandit(position)
+        villages = self.gamestate.Map.getVillagesToTile(position)
+        cities = self.gamestate.Map.getCitiesToTile(position)
+        players = list(dict.fromkeys(villages + cities))
+        for player in players:
+            card = self.getPlayerToName(player).getRandomResourceCard()
+            self.removeResourceCards(player, card)
+            self.giveResourceCards(playerName, card)
 
     # ---- Interaction with gamestate
 
@@ -128,9 +141,8 @@ if __name__ == "__main__":
     sim.giveResourceCards("jakob", "ORE", 10)
     sim.giveResourceCards("lia", "ORE", 10)
     sim.gamestate.MONOPOLY("jakob", "ORE")
-    print(sim.gamestate.getPlayerToName("jakob").check7())
-    print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
-    print(sim.gamestate.getPlayerToName("lia").getResourceCards())
+    # print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
+    # print(sim.gamestate.getPlayerToName("jakob").check7())
     sim.buildObject("jakob", "VILLAGE", (4, 5, 10))
     sim.buildObject("jakob", "CITY", (4, 5, 10))
     sim.buildObject("jakob", "VILLAGE", (2, 6, 1))
@@ -143,6 +155,11 @@ if __name__ == "__main__":
     sim.incRound()
     sim.drawDevelopmentCard("jakob")
     sim.drawDevelopmentCard("jakob")
+    print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
+    print(sim.gamestate.getPlayerToName("lia").getResourceCards())
+    sim.turn("lia")
+    print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
+    print(sim.gamestate.getPlayerToName("lia").getResourceCards())
     # print(sim.gamestate.getPlayerToName("jakob").getDevelopmentCards())
     # sim.turn("jakob")
     # sim.buildObject("lia", "VILLAGE", (13, 19, 20))
