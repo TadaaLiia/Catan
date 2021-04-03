@@ -293,7 +293,7 @@ class CatanMap:
         tiles = []
         i = 0
         for tile in self.getTileList():
-            if tile[1] == value:
+            if tile[1] == value and self.getBanditPosition() != i:
                 tiles.append((i, tile[0]))
             i += 1
         return(tiles)
@@ -325,3 +325,9 @@ if __name__ == "__main__":
     lia.buildStuff("jakob", "VILLAGE", (10, 11, 17))
     lia.buildStuff("lia", "VILLAGE", (13, 19, 20), 0)
     lia.buildStuff("jakob", "VILLAGE", (9, 10, 16), 0)
+    print(lia.getAvailableStreets("jakob"))
+    print(lia.getTileList())
+    lia.setBanditPosition(10)
+    for i in range(2, 13):
+        print(i)
+        print(lia.getTilesToValue(i))

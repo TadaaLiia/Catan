@@ -16,6 +16,7 @@ class Player:
         self.AvailableObjects = self.initializeAvailableObjects()
         self.ResourceCards = self.initializeResourceCards()
         self.DevelopmentCards = []
+        self.VictoryPoints = 0
 
     # ---- getter ----
     def getName(self):
@@ -32,6 +33,9 @@ class Player:
 
     def getDevelopmentCards(self):
         return self.DevelopmentCards
+
+    def getVictoryPoints(self):
+        return self.VictoryPoints
 
     # ---- setter ----
     def setName(self, name):
@@ -88,6 +92,25 @@ class Player:
                     break
         else:
             self.getDevelopmentCards().append((card, round))
+
+    def updateVictoryPoints(self, flag=0):
+        if flag == 1:
+            assert self.getVictoryPoints() > 0, "0 points"
+            self.VictoryPoints -= 1
+        else:
+            self.VictoryPoints += 1
+            if self.getVictoryPoints() >= 10:
+                print(self.getName + "hat gewonnen!")
+
+    def check7(self):
+        sum = 0
+        for card in self.getResourceCards().values():
+            sum += card
+        if sum > 7:
+            discard = int(sum / 2)
+
+    def getRandomResourceCard(self):
+        pass
 
 
 if __name__ == "__main__":
