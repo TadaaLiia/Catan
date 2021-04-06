@@ -19,6 +19,13 @@ class Gamestate:
         self.PlayerList = self.initializePlayerList(self.player)
         self.Round = 0
 
+    def inputCheck(self):
+        try:
+            i = int(input("> "))
+        except ValueError:
+            i = self.inputCheck()
+        return i
+
     # ---- getter ----
     def getDevelopmentCards(self):
         return self.DevelopmentCards
@@ -114,14 +121,21 @@ class Gamestate:
         self.CountDevCards -= 1
 
     # ---- Development cards
-    def KNIGHTCARD(self, playerName, position):
-        self.getPlayerToName(playerName).updateDevelopmentCards("KNIGHT_CARD")
+    def KNIGHTCARD(self, playerName):
+        print("position:")
+        position = self.inputCheck()
+        # self.getPlayerToName(playerName).updateDevelopmentCards("KNIGHT_CARD")
         self.Map.setBanditPosition(position)
 
     def VICTORYPOINTCARD(self, playerName):
         self.getPlayerToName(playerName).updateVictoryPoints()
 
-    def CONSTRUCTION(self, playerName, position1, position2):
+    def CONSTRUCTION(self, playerName):
+        """
+        input check, positionen checken
+        """
+        position1 = input()
+        position2 = input()
         self.Map.buildStuff(playerName, "STREET", position1, self.getRound())
         self.Map.buildStuff(playerName, "STREET", position2, self.getRound())
 
@@ -139,6 +153,74 @@ class Gamestate:
     def DEVELOPMENT(self, playerName, resourceCard1, resourceCard2):
         self.getPlayerToName(playerName).updateResourceCards(resourceCard1, 1)
         self.getPlayerToName(playerName).updateResourceCards(resourceCard2, 1)
+
+    # ---- trade ----
+    def trade3(self, playerName, card1, card2):
+        assert card1 in self.getResourceCards(), "invalid card"
+        assert card2 in self.getResourceCards(), "invalid card"
+        assert self.getPlayerToName(playerName).getResourceCards()[card1] >= 3, "you need 3 cards"
+        nodes = [(0, 1, 5), (0, 4, 5), (7, 8, 13), (8, 13, 14), (14, 20, 21), (20, 21, 27), (28, 29, 33), (29, 33, 34)]
+        objects, buildings, streets = self.Map.getPlayerShit(playerName)
+        for building in buildings:
+            if building in nodes:
+                self.getPlayerToName(playerName).trade(3, card1, card2)
+                return
+        raise Exception("no 3:1 port")
+
+    def sheepTrade(self, playerName, card):
+        assert card in self.getResourceCards(), "invalid card"
+        assert self.getPlayerToName(playerName).getResourceCards()["SHEEP"] >= 2, "you need 2 cards"
+        nodes = [(1, 2, 6), (2, 6, 7)]
+        objects, buildings, streets = self.Map.getPlayerShit(playerName)
+        for building in buildings:
+            if building in nodes:
+                self.getPlayerToName(playerName).trade(2, "SHEEP", card)
+                return
+        raise Exception("no sheep port")
+
+    def oreTrade(self, playerName, card):
+        assert card in self.getResourceCards(), "invalid card"
+        assert self.getPlayerToName(playerName).getResourceCards()["ORE"] >= 2, "you need 2 cards"
+        nodes = [(4, 9, 10), (9, 10, 16)]
+        objects, buildings, streets = self.Map.getPlayerShit(playerName)
+        for building in buildings:
+            if building in nodes:
+                self.getPlayerToName(playerName).trade(2, "ORE", card)
+                return
+        raise Exception("no ore port")
+
+    def wheatTrade(self, playerName, card):
+        assert card in self.getResourceCards(), "invalid card"
+        assert self.getPlayerToName(playerName).getResourceCards()["WHEAT"] >= 2, "you need 2 cards"
+        nodes = [(16, 22, 23), (22, 23, 28)]
+        objects, buildings, streets = self.Map.getPlayerShit(playerName)
+        for building in buildings:
+            if building in nodes:
+                self.getPlayerToName(playerName).trade(2, "WHEAT", card)
+                return
+        raise Exception("no wheat port")
+
+    def clayTrade(self, playerName, card):
+        assert card in self.getResourceCards(), "invalid card"
+        assert self.getPlayerToName(playerName).getResourceCards()["CLAY"] >= 2, "you need 2 cards"
+        nodes = [(26, 27, 32), (26, 31, 32)]
+        objects, buildings, streets = self.Map.getPlayerShit(playerName)
+        for building in buildings:
+            if building in nodes:
+                self.getPlayerToName(playerName).trade(2, "CLAY", card)
+                return
+        raise Exception("no clay port")
+
+    def woodTrade(self, playerName, card):
+        assert card in self.getResourceCards(), "invalid card"
+        assert self.getPlayerToName(playerName).getResourceCards()["WOOD"] >= 2, "you need 2 cards"
+        nodes = [(30, 31, 35), (30, 34, 35)]
+        objects, buildings, streets = self.Map.getPlayerShit(playerName)
+        for building in buildings:
+            if building in nodes:
+                self.getPlayerToName(playerName).trade(2, "WOOD", card)
+                return
+        raise Exception("no wood port")
 
 
 if __name__ == "__main__":

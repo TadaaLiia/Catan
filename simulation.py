@@ -7,27 +7,53 @@ class Simulation:
         self.gamestate = gamestate
 
     # ---- turn ----
+    def inputCheck(self):
+        try:
+            i = int(input("> "))
+        except ValueError:
+            i = self.inputCheck()
+        return i
+
     def roll(self):
         return random.randrange(1, 7) + random.randrange(1, 7)
 
     def turn(self, playerName):
         for card in self.gamestate.getPlayerToName(playerName).getDevelopmentCards():
-            if "KNIGHT_CARDS" == card[0]:
-                answer = input("1: play knight card, 0: skip")
-                if answer > 1 and answer < 0:
-                    answer = 0
+            if "KNIGHT_CARD" == card[0]:
+                print("1: play knight card, 0: skip")
+                answer = self.inputCheck()
                 if answer == 1:
-                    break
+                    self.playDevelopmentCard(playerName, "KNIGHT_CARD")
+                break
         r = self.roll()
-        print(r)
+        print("roll " + r)
         if r != 7:
             self.handOutCards(r)
         elif r == 7:
             self.roll7(playerName)
+        # option1: devcard speilen
+        # option2: traden
+        # option3:bauen
+        # option4: exit
+        exit = False
+        while not exit:
+            print("1: DevCard, 2: Trade, 3: Build, 4: exit")
+            option = input("> ")
+            if option == str(1):
+                card = self.getPlayerToName(playerName).chooseDevCard()
+                self.playDevelopmentCard(playerName, card)
+            elif option == str(2):
+                pass
+            elif option == str(3):
+                pass
+            elif option == str(4):
+                exit = True
+            else:
+                print("invalid input")
 
     def roll7(self, playerName):
-        position = input("bandit position")
-        assert type(position) == int, "invalid position"
+        print("bandit position")
+        position = self.inputCheck()
         self.bandit(position)
         villages = self.gamestate.Map.getVillagesToTile(position)
         cities = self.gamestate.Map.getCitiesToTile(position)
@@ -127,6 +153,20 @@ class Simulation:
         card = self.gamestate.getRandomDevCard()
         self.gamestate.getPlayerToName(playerName).updateDevelopmentCards(card, self.getRound())
 
+    def playDevelopmentCard(self, playerName, devCard):
+        r = self.getPlayerToName(playerName).updateDevelopmentCards(devCard, self.getRound(), 1)
+        if r == 1:
+            if devCard == "KNIGHT_CARD":
+                self.gamestate.KNIGHTCARD(playerName)
+            elif devCard == "VICTORY_POINT_CARD":
+                self.gamestate.VICTORYPOINTCARD(playerName)
+            elif devCard == "MONOPOLY":
+                self.gamestate.MONOPOLY(playerName)
+            elif devCard == "DEVELOPMENT":
+                self.gamestate.DEVELOPMENT(playerName)
+            elif devCard == "CONSTRUCTION":
+                self.gamestate.CONSTRUCTION(playerName)
+
     def getPlayerToName(self, name):
         return self.gamestate.getPlayerToName(name)
 
@@ -141,6 +181,11 @@ if __name__ == "__main__":
     sim.giveResourceCards("jakob", "ORE", 10)
     sim.giveResourceCards("lia", "ORE", 10)
     sim.gamestate.MONOPOLY("jakob", "ORE")
+    sim.giveResourceCards("edgar", "WOOD", 10)
+    sim.giveResourceCards("edgar", "CLAY", 10)
+    sim.giveResourceCards("edgar", "WHEAT", 10)
+    sim.giveResourceCards("edgar", "ORE", 10)
+    sim.giveResourceCards("edgar", "SHEEP", 10)
     # print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
     # print(sim.gamestate.getPlayerToName("jakob").check7())
     sim.buildObject("jakob", "VILLAGE", (4, 5, 10))
@@ -148,6 +193,7 @@ if __name__ == "__main__":
     sim.buildObject("jakob", "VILLAGE", (2, 6, 1))
     sim.buildObject("jakob", "STREET", (5, 10))
     sim.buildObject("jakob", "STREET", (11, 10))
+    sim.buildObject("edgar", "VILLAGE", (7, 8, 13))
     sim.incRound()
     sim.drawDevelopmentCard("jakob")
     sim.drawDevelopmentCard("jakob")
@@ -155,11 +201,14 @@ if __name__ == "__main__":
     sim.incRound()
     sim.drawDevelopmentCard("jakob")
     sim.drawDevelopmentCard("jakob")
-    print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
-    print(sim.gamestate.getPlayerToName("lia").getResourceCards())
-    sim.turn("lia")
-    print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
-    print(sim.gamestate.getPlayerToName("lia").getResourceCards())
+    # print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
+    # print(sim.gamestate.getPlayerToName("lia").getResourceCards())
+    sim.turn("jakob")
+    # print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
+    # sim.getPlayerToName("jakob").trade4("WOOD", "ORE")
+    # print(sim.gamestate.getPlayerToName("edgar").getResourceCards())
+    # sim.gamestate.trade3("edgar", "WOOD", "ORE")
+    # print(sim.gamestate.getPlayerToName("edgar").getResourceCards())
     # print(sim.gamestate.getPlayerToName("jakob").getDevelopmentCards())
     # sim.turn("jakob")
     # sim.buildObject("lia", "VILLAGE", (13, 19, 20))

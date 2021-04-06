@@ -43,6 +43,9 @@ class CatanMap:
 
     # ---- generation and initialization ----
     def generateAdjacency(self):
+        '''
+        returns: Matrix(36x36), adjacent tiles
+        '''
         x = []
         for i in range(37):
             x.append([0 for jakob in range(37)])
@@ -84,6 +87,9 @@ class CatanMap:
         return x
 
     def generateNodeList(self):
+        '''
+        returns: available, valid nodes
+        '''
         nodeList = []
 
         TILES_1 = [5, 6, 7]
@@ -124,6 +130,7 @@ class CatanMap:
         return sorted(nodeList)
 
     def generateMap(self, seed=None):
+        
         AVAILABLE_TILES = {
             "WHEAT": 4,
             "ORE": 3,

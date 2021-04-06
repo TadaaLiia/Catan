@@ -88,11 +88,13 @@ class Player:
 
     def updateDevelopmentCards(self, card, round, flag=0):
         if flag == 1:
-            assert card in [x[0] for x in self.DevelopmentCards if x[1] < round], "you dont own this card"
+            if card not in [x[0] for x in self.DevelopmentCards if x[1] < round]:
+                print("you dont own this card")
+                return 0
             for developmentCard in self.DevelopmentCards:
                 if developmentCard[0] == card:
                     del self.DevelopmentCards[self.DevelopmentCards.index(developmentCard)]
-                    break
+                    return 1
         else:
             self.getDevelopmentCards().append((card, round))
 
@@ -124,6 +126,33 @@ class Player:
                 rand -= v
             else:
                 return k
+
+    def trade4(self, card1, card2):
+        assert card1 in self.getResourceCards(), "invalid card"
+        assert card2 in self.getResourceCards(), "invalid card"
+        assert self.getResourceCards()[card1] >= 4, "you need 4 cards"
+        self.trade(4, card1, card2)
+
+    def trade(self, x, card1, card2):
+        for i in range(x):
+            self.updateResourceCards(card1, 0)
+        self.updateResourceCards(card2, 1)
+
+    def chooseDevCard(self):
+        if len(self.getDevelopmentCards()) != 0:
+            print(self.getDevelopmentCards())
+            print("0 - " + str(len(self.getDevelopmentCards())))
+            try:
+                cardIndex = int(input())
+            except ValueError:
+                self.chooseDevCard()
+            else:
+                try:
+                    card = self.getDevelopmentCards()[cardIndex][0]
+                except IndexError:
+                    self.chooseDevCard
+                else:
+                    return card
 
 
 if __name__ == "__main__":
