@@ -50,9 +50,9 @@ Player 1 begins.
 	-  place them on the game board, you cannot build more than what is available in your pool (5x village, 4x city, 15x street)
 - **buy development card** (1x wheat, 1x sheep, 1x ore). keep them hidden in your hand
 - **play development card** at any time during turn
-	- dev cards never go back to supplybought during the same round, except for a victory point card
+	- dev cards never go back to supply
 	- only one dev card per round
-	- player cannot play a card he 
+	- player cannot play a card he bought during the same round, except for a victory point card
 - **pass** dice to player to your left
 ### Special cases
 - **roll a 7**
