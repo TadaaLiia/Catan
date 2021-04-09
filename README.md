@@ -17,18 +17,18 @@ This project aims to implement a fully autonomous, intelligent agent capable of 
 ### Board
 The game board is laid out randomly. The board changes each game.
 Example 1:
-![catanmap1|300](pics/map1.jpeg "example 1" =300x) 
+![catanmap1|300](pics/map1.jpeg =300px) 
 Example 2:
-![catanmap2|300](pics/map2.jpeg "example 2" =300x) 
+![catanmap2|300](pics/map2.jpeg =300px) 
 ### Setting up the game
 All players choose a color and the one who rolls the highest number gets priority 1. Priority 2 - 4 are distributed clockwise.
 Player 1 places his first village and an adjacent street. After that, everyone places clockwise. Player 4 places 2 villages and 2 streets directly, then counterclockwise the remaining players place their village and street.
 Everyone takes the appropriate resource cards from stack.
 ### Distance Rule
 - Villages and cities may only be placed at the corners of the terrain hexes, streets at the edges of the terrain hexes:
-	- ![rule1|100](pics/distancerule_1.PNG "rule1" =100x) 
+	- ![rule1|100](pics/distancerule_1.PNG =100px) 
 - There must be a free space between two buildings:
-	- ![rule2|170](pics/distancerule_2.PNG "rule2" =120x) 
+	- ![rule2|170](pics/distancerule_2.PNG =120px) 
 ### Turn Overview
 Player 1 begins.
 - **roll for resource production:** sum of the dice determines which terrain hexes produce resources for adjacent buildings (1 resource card per village, 2 ressource cards per city)
@@ -81,9 +81,9 @@ Pepresentation and generation of the board
 	- *generateMap()* to generate TileList randomly
 	- *getTileList()* returns TileList
 	- Example 1:
-		![catanmap1generation|300](pics/mapgeneration_1.png "example 1" =300px) 
+		![catanmap1generation|300](pics/mapgeneration_1.png =300px) 
 	- Example 2:
-		![catanmap2generation|300](pics/mapgeneration_2.png "example 2" =300px)
+		![catanmap2generation|300](pics/mapgeneration_2.png =300px)
 	- *getTilesToValue(value)* returns Numbers of Tiles with value "value"
 - **AvailableNodes**
 	- List, availableNodes(x, y, z)
