@@ -1,9 +1,9 @@
 # Settlers of Catan
-This project aims to implement a fully autonomous, intelligent agent capable of playing the popular board game Settlers of Catan. The agent uses a heuristic search algorithm called MCTS (Monte-Carlo-Tree-Search) to produce intelligent descisions within the game. Given enough processing time, this bot is supposed to find optimal turns for every given gamestate. It is roughly modeled after DeepMinds AlphaGo.
+This project aims to implement a fully autonomous, intelligent agent capable of playing the popular board game Settlers of Catan. The agent uses a heuristic search algorithm called MCTS (Monte-Carlo-Tree-Search) to produce intelligent decisions within the game. Given enough processing time, this bot is supposed to find optimal turns for every given gamestate. It is roughly modeled after DeepMinds AlphaGo.
 ## Explanation of the game
 ### Game Components
 - 19 terrain hexes (tiles: 4x WOOD, 3x ORE, 4x WHEAT, 4x SHEEP, 3x CLAY, 1x DESERT)
-- 18 ozean hexes
+- 18 ocean hexes
 - 9 PORTS (4x 3:1-Port, 1x 2:1-Port for each Resource)
 - 18 circular number tokens
 - 95 ResourceCards (19 of each resource: WOOD, ORE, WHEAT, SHEEP, CLAY)
@@ -17,18 +17,18 @@ This project aims to implement a fully autonomous, intelligent agent capable of 
 ### Board
 The game board is laid out randomly. The board changes each game.
 Example 1:
-![catanmap1|300](pics/map1.jpeg =300px) { width=50% }
+![catanmap1](pics/map1.jpeg)
 Example 2:
-![catanmap2|300](pics/map2.jpeg =300px) 
+![catanmap2](pics/map2.jpeg) 
 ### Setting up the game
 All players choose a color and the one who rolls the highest number gets priority 1. Priority 2 - 4 are distributed clockwise.
 Player 1 places his first village and an adjacent street. After that, everyone places clockwise. Player 4 places 2 villages and 2 streets directly, then counterclockwise the remaining players place their village and street.
 Everyone takes the appropriate resource cards from stack.
 ### Distance Rule
 - Villages and cities may only be placed at the corners of the terrain hexes, streets at the edges of the terrain hexes:
-	- ![rule1|100](pics/distancerule_1.PNG =100px) 
+	- ![rule1](pics/distancerule_1.PNG) 
 - There must be a free space between two buildings:
-	- ![rule2|170](pics/distancerule_2.PNG =120px) 
+	- ![rule2](pics/distancerule_2.PNG) 
 ### Turn Overview
 Player 1 begins.
 - **roll for resource production:** sum of the dice determines which terrain hexes produce resources for adjacent buildings (1 resource card per village, 2 ressource cards per city)
@@ -72,7 +72,7 @@ if one player has 10 or more victory points during your turn, the game ends and 
 Pepresentation and generation of the board
 - **Adjacency**
 	- Matrix(36x36): adjacent tiles to represent map
-	- *generateAdjacency()* to set Adjacency
+	- *generateAdjacency()* to generate Adjacency
 	- *getAdjacency()* returns Adjacency
 - **TileList**
 	- List (TileType, value)
@@ -81,13 +81,13 @@ Pepresentation and generation of the board
 	- *generateMap()* to generate TileList randomly
 	- *getTileList()* returns TileList
 	- Example 1:
-		![catanmap1generation|300](pics/mapgeneration_1.png =300px) 
+		![catanmap1generation](pics/mapgeneration_1.png) 
 	- Example 2:
-		![catanmap2generation|300](pics/mapgeneration_2.png =300px)
+		![catanmap2generation](pics/mapgeneration_2.png)
 	- *getTilesToValue(value)* returns Numbers of Tiles with value "value"
 - **AvailableNodes**
-	- List, availableNodes(x, y, z)
-	- (x, y, z): numbers of adjacent hex tiles
+	- List of availableNodes (tile1, tile2, tile3)
+	- (tile1, tile2, tile3): numbers of adjacent hex tiles
 	- all available positions for buildings
 	- *generateNodeList()* to initialize AvailableNodes
 	- *getAvailableNodes()* returns AvailableNodes
