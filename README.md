@@ -16,19 +16,19 @@ This project aims to implement a fully autonomous, intelligent agent capable of 
 - 1 Bandit
 ### Board
 The game board is laid out randomly. The board changes each game.
-Example 1:
-![catanmap1](pics/map1.jpeg)
-Example 2:
-![catanmap2](pics/map2.jpeg) 
+- Example 1:
+	- <img src="pics/map1.jpeg" width="500">
+- Example 2:
+	- <img src="pics/map2.jpeg" width="500">
 ### Setting up the game
 All players choose a color and the one who rolls the highest number gets priority 1. Priority 2 - 4 are distributed clockwise.
 Player 1 places his first village and an adjacent street. After that, everyone places clockwise. Player 4 places 2 villages and 2 streets directly, then counterclockwise the remaining players place their village and street.
 Everyone takes the appropriate resource cards from stack.
 ### Distance Rule
 - Villages and cities may only be placed at the corners of the terrain hexes, streets at the edges of the terrain hexes:
-	- ![rule1](pics/distancerule_1.PNG) 
+	- <img src="pics/distancerule_1.PNG" width="150">
 - There must be a free space between two buildings:
-	- ![rule2](pics/distancerule_2.PNG) 
+	- <img src="pics/distancerule_2.PNG" width="200"> 	
 ### Turn Overview
 Player 1 begins.
 - **roll for resource production:** sum of the dice determines which terrain hexes produce resources for adjacent buildings (1 resource card per village, 2 ressource cards per city)
@@ -81,19 +81,19 @@ Pepresentation and generation of the board
 	- *generateMap()* to generate TileList randomly
 	- *getTileList()* returns TileList
 	- Example 1:
-		![catanmap1generation](pics/mapgeneration_1.png) 
+		![catanmap1generation](pics/mapgeneration_1.png)
 	- Example 2:
 		![catanmap2generation](pics/mapgeneration_2.png)
-	- *getTilesToValue(value)* returns Numbers of Tiles with value "value"
+	- *getTilesToValue(value)* returns ID of Tiles with value "value"
 - **AvailableNodes**
-	- List of availableNodes (tile1, tile2, tile3)
-	- (tile1, tile2, tile3): numbers of adjacent hex tiles
+	- List of available Nodes (tile1, tile2, tile3)
+	- (tile1, tile2, tile3): id of adjacent hex tiles
 	- all available positions for buildings
 	- *generateNodeList()* to initialize AvailableNodes
 	- *getAvailableNodes()* returns AvailableNodes
-	- *updateAvailableNodes(position)* input: position of build village -> deletes all surrounding positions in AvailableNodes
+	- *updateAvailableNodes(position)* input: vertices/position of built village -> deletes all surrounding 		positions in AvailableNodes
 - **ObjectList**
-	- List of Objects on Map: {playerName, type of Object, position}
+	- List of Objects on Map: {player : PLAYERNAME, type: TYPE OF OBJECT, position: POSITION}
 	- *initializeObjectList()* to initialize ObjectList with Ports
 	- *getObjectList()* returns ObjectList
 	- *getPlayerShit(player)* returns all Objects of player
@@ -105,18 +105,18 @@ Pepresentation and generation of the board
 	- *buildStuff(player, type, position, round)* to update ObjectList
 - **BanditPosition**
 	- *getBanditPosition()* returns BanditPosition
-	- *setBanditPosition(position)* updates BanditPosition 
+	- *setBanditPosition(position)* sets BanditPosition 
 ### Class Player
 - **Name**
 	- string
 	- *getName()* returns Name
-	- *setName(name)* update Name
+	- *setName(name)* sets Name
 - **Priority**
-	- int 0 - 3
+	- int in {0 ... 3}
 	- *getPriority()* returns Priority
 	- *setPriority(prio)* update Priority
 - **VictoryPoints**
-	- int 0 - 10
+	- int in {0 ... 10}
 	- *getVictoryPoints()* returns VictoryPoints
 	- *updateVictoryPoints(flag)* add(0), deduct(1) point, checks if >= 10
 - **AvailableObjects**
@@ -151,9 +151,9 @@ Pepresentation and generation of the board
 	- *MONOPOLY(playerName, resourceCard)* player plays MONOPOLY, opponents give all cards of the selected type to the player
 	- *DEVELOPMENT(playerName)* player chooses 2 ResourceCards 
 - **CountDevCards**
-	- Number of DeveloopmentCards in stack
+	- Number of DevelopmentCards in stack
 	- *getCountDev()* return CountDevCards
-	- *decCountDev()* CountDevCards --
+	- *decCountDev()* decrements CountDevCards
 - **ResourceCards**
 	- Dictionary: WHEAT:19, ORE:19, SHEEP:19, WOOD:19, CLAY:19
 	- *initializeResourceCards()* initializes ResourceCards
@@ -169,24 +169,24 @@ Pepresentation and generation of the board
 - **Round**
 	- current Round
 	- *getRound()* returns Round
-	- *incRound()* Round ++
+	- *incRound()* increments Round
 - **Trading functions**
 	- ...
 ### Class Simulation
-- **gamestate** Gamestate Object
-	- *getRound()* returns gamestate.Round
-	- *incRound()* increments gamestate.Round
-- **Functions to Interacts with CatanMap**
+- **Gamestate** Gamestate Object
+	- *getRound()* returns Gamestate.Round
+	- *incRound()* increments Gamestate.Round
+- **Functions to interact with CatanMap**
 	- *getObjectList()* returns ObjectList
 	- *getAvailableStreetPositions(playerName)* returns List of AvailableStreetPositions of player
 	- *getAvailableVillagePositions(playerName)* returns List of AvailableVillagePositions of player
 	- *getAvailableCityPositions(playerName)* returns List of AvailableCityPositions of player
 	- *buildObject(playerName, type, position)* updates Map, removes ResourceCards from player
-	- *bandit(position)* updates BanditPosition
-- **Functions to Interact with Player**
+	- *setBandit(position)* updates BanditPosition
+- **Functions to interact with Player**
 	- *priorityRoll(player)* initializes Priorities
-	- *giveResourceCard(playerName, card, count)* adds countx card 
-	- *removeResourceCard(playerName, card, count)* removes countx card
+	- *giveResourceCard(playerName, card, count)* adds count* card 
+	- *removeResourceCard(playerName, card, count)* removes count* card
 	- *handOutCards(roll)* cards are dealt depending on the dice roll
 	- *drawDevelopmentCard(playerName)* player draws random DevelopmentCard, removes ResourceCards
 	- *playDevelopmentCard(playerName, devCard)* player plays devCard
