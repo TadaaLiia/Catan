@@ -17,7 +17,7 @@ This project aims to implement a fully autonomous, intelligent agent capable of 
 ### Board
 The game board is laid out randomly. The board changes each game.
 Example 1:
-![catanmap1|300](pics/map1.jpeg =300px) 
+![catanmap1|300](pics/map1.jpeg =300px) { width=50% }
 Example 2:
 ![catanmap2|300](pics/map2.jpeg =300px) 
 ### Setting up the game
