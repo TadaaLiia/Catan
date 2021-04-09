@@ -17,18 +17,18 @@ This project aims to implement a fully autonomous, intelligent agent capable of 
 ### Board
 The game board is laid out randomly. The board changes each game.
 - Example 1:
-	- <img src="pics/map1.jpeg" width="500">
+	<img src="pics/map1.jpeg" width="500">
 - Example 2:
-	- <img src="pics/map2.jpeg" width="500">
+	<img src="pics/map2.jpeg" width="500">
 ### Setting up the game
 All players choose a color and the one who rolls the highest number gets priority 1. Priority 2 - 4 are distributed clockwise.
 Player 1 places his first village and an adjacent street. After that, everyone places clockwise. Player 4 places 2 villages and 2 streets directly, then counterclockwise the remaining players place their village and street.
 Everyone takes the appropriate resource cards from stack.
 ### Distance Rule
 - Villages and cities may only be placed at the corners of the terrain hexes, streets at the edges of the terrain hexes:
-	- <img src="pics/distancerule_1.PNG" width="150">
+	<img src="pics/distancerule_1.PNG" width="150">
 - There must be a free space between two buildings:
-	- <img src="pics/distancerule_2.PNG" width="200"> 	
+	<img src="pics/distancerule_2.PNG" width="200"> 	
 ### Turn Overview
 Player 1 begins.
 - **roll for resource production:** sum of the dice determines which terrain hexes produce resources for adjacent buildings (1 resource card per village, 2 ressource cards per city)
