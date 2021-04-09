@@ -1,5 +1,6 @@
 # import the pygame module
 import pygame
+import map
  
 # import pygame.locals for easier
 # access to key coordinates
@@ -9,12 +10,17 @@ import math
 
 BLUE = pygame.Color(0, 0, 128)
 WHITE = pygame.Color(255, 255, 255)
-GREEN = (0, 200, 0 )
-MIDPOINT = (400, 400)
+DARK_GREEN = pygame.Color(0,50,0)
+GREEN = pygame.Color(0,255,0)
+GRAY = pygame.Color(127, 127, 127)
+YELLOW = pygame.Color(255, 255, 0)
+BROWN = pygame.Color(200,190,140)
+
+MIDPOINT = (400, 50)
 FONT_PATH = "data/RobotoMono-Regular.ttf"
 
 class Hex(pygame.sprite.Sprite):
-    def __init__(self, color, size=100, number=None, offset=(0, 0)):
+    def __init__(self, color, size=70, number=None, offset=(0, 0)):
         super(Hex, self).__init__()
         self.color = color
         self.size = size
@@ -35,7 +41,6 @@ class Hex(pygame.sprite.Sprite):
             ((hex_MIDPOINT[0] + (x_width * 0.5), (hex_MIDPOINT[1] - (0.25 * y_height)))),
             (hex_MIDPOINT[0], (hex_MIDPOINT[1] - (0.5 * y_height))),
             ((hex_MIDPOINT[0] - (x_width * 0.5)), (hex_MIDPOINT[1] - (0.25 * y_height)))]
-        print(coordinates)
         return coordinates
  
     def _drawNum(self, screen, game_font):
@@ -56,25 +61,26 @@ class CatanBoard():
 
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((800, 800))
+        self.screen = pygame.display.set_mode((1200, 1200))
         self.running = True
         self.game_font = pygame.freetype.Font(FONT_PATH, 24)
-        blue_hex = Hex(BLUE, number=5)
-        blue_hex.draw(self.screen, self.game_font)
+        self.hexes = []
+        #blue_hex = Hex(BLUE, number=5)
+        #blue_hex.draw(self.screen, self.game_font)
         # Hex mit Offset = (1,0) ist dann rechts neben dem Center-Hex
         # Hex mit offset = (0.5, 3/4) ist rechts unten neben dem Center-Hex
-        green_hex = Hex(GREEN, number=9, offset=(0.5,3/4))
-        green_hex.draw(self.screen, self.game_font)
-
+        #green_hex = Hex(GREEN, number=9, offset=(0.5,3/4))
+        #green_hex.draw(self.screen, self.game_font)
+        catanMap = map.CatanMap()
+        self.generateBoard(catanMap.generateMap())
         self.gameloop()
         
-    def buildGrid(layers):
+    def buildGrid(self):
         # Layers is a number representing the number of rings
         # Layers = 1
         #    [x][x]
         #   [x][x][x]
         #    [x][x]
-        max_width = (layers * 2) + 1
         offsets = [
             [0,1,2,3],
             [4,5,6,7,8],
@@ -85,12 +91,34 @@ class CatanBoard():
             [33,34,35,36]
         ]
         result = []
+        # (0,0) -> (0,0)
+        # (1,0) -> (- 0.5, 3/4)
+        horizontal_offsets = [0, -0.5, -1, -1.5, -1, -0.5, 0]
+        base_offset = (0,0)
         for row in range(len(offsets)):
-            for column in range(len(row)):
-                
-            
-            
-    
+            base_offset = (horizontal_offsets[row], base_offset[1] + 3/4)
+            for column in range(len(offsets[row])):
+                result.append((base_offset[0] + column, base_offset[1]))
+        return result
+
+    def generateBoard(self, TileList):
+        offsets = self.buildGrid()
+        mapping = {
+            "WHEAT": YELLOW,
+            "ORE": GRAY,
+            "SHEEP": GREEN,
+            "WOOD": DARK_GREEN,
+            "CLAY": BROWN,
+            "DESERT": WHITE,
+            "OCEAN": BLUE
+        }
+        i = 0
+        for Tile in TileList:
+            newHex = Hex(mapping[Tile[0]], number=Tile[1], offset=offsets[i])
+            newHex.draw(self.screen, self.game_font)
+            self.hexes.append(newHex)
+            i += 1
+        
     def gameloop(self):
         while self.running:
             for event in pygame.event.get():
@@ -107,4 +135,5 @@ class CatanBoard():
 
 if __name__ == "__main__":
     board = CatanBoard()
+    board.buildGrid()
 
