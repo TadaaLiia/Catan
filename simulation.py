@@ -26,7 +26,7 @@ class Simulation:
                     self.playDevelopmentCard(playerName, "KNIGHT_CARD")
                 break
         r = self.roll()
-        print("roll " + r)
+        print("roll " + str(r))
         if r != 7:
             self.handOutCards(r)
         elif r == 7:
@@ -169,6 +169,9 @@ class Simulation:
 
     def getPlayerToName(self, name):
         return self.gamestate.getPlayerToName(name)
+
+    def getLegalMoves(self, playerName):
+        pass
 
 
 if __name__ == "__main__":

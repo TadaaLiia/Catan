@@ -130,7 +130,6 @@ class CatanMap:
         return sorted(nodeList)
 
     def generateMap(self, seed=None):
-        
         AVAILABLE_TILES = {
             "WHEAT": 4,
             "ORE": 3,
@@ -323,18 +322,19 @@ class CatanMap:
 
 
 if __name__ == "__main__":
-    lia = CatanMap()
-    lia.buildStuff("jakob", "VILLAGE", (4, 5, 10), 0)
-    lia.buildStuff("jakob", "CITY", (4, 5, 10))
-    lia.buildStuff("jakob", "VILLAGE", (2, 6, 1), 0)
-    lia.buildStuff("jakob", "STREET", (5, 10))
-    lia.buildStuff("jakob", "STREET", (11, 10))
-    lia.buildStuff("jakob", "VILLAGE", (10, 11, 17))
-    lia.buildStuff("lia", "VILLAGE", (13, 19, 20), 0)
-    lia.buildStuff("jakob", "VILLAGE", (9, 10, 16), 0)
-    print(lia.getAvailableStreets("jakob"))
-    print(lia.getTileList())
-    lia.setBanditPosition(10)
-    for i in range(2, 13):
-        print(i)
-        print(lia.getTilesToValue(i))
+    cmap = CatanMap()
+    print(cmap.getTileList())
+    # cmap.buildStuff("jakob", "VILLAGE", (4, 5, 10), 0)
+    # cmap.buildStuff("jakob", "CITY", (4, 5, 10))
+    # cmap.buildStuff("jakob", "VILLAGE", (2, 6, 1), 0)
+    # cmap.buildStuff("jakob", "STREET", (5, 10))
+    # cmap.buildStuff("jakob", "STREET", (11, 10))
+    # cmap.buildStuff("jakob", "VILLAGE", (10, 11, 17))
+    # cmap.buildStuff("lia", "VILLAGE", (13, 19, 20), 0)
+    # cmap.buildStuff("jakob", "VILLAGE", (9, 10, 16), 0)
+    # print(cmap.getAvailableStreets("jakob"))
+    # print(cmap.getTileList())
+    # cmap.setBanditPosition(10)
+    # for i in range(2, 13):
+    #     print(i)
+    #     print(cmap.getTilesToValue(i))

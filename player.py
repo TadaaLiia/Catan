@@ -154,6 +154,9 @@ class Player:
                 else:
                     return card
 
+    def getPossibleBuildings(self):
+        pass
+
 
 if __name__ == "__main__":
     jakob = Player()

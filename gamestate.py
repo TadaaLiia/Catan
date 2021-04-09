@@ -18,6 +18,7 @@ class Gamestate:
             self.player = 4
         self.PlayerList = self.initializePlayerList(self.player)
         self.Round = 0
+        self.currentPlayer = 0
 
     def inputCheck(self):
         try:
@@ -120,7 +121,7 @@ class Gamestate:
     def decCountDev(self):
         self.CountDevCards -= 1
 
-    # ---- Development cards
+    # ---- Development cards, unfinished
     def KNIGHTCARD(self, playerName):
         print("position:")
         position = self.inputCheck()
@@ -140,6 +141,7 @@ class Gamestate:
         self.Map.buildStuff(playerName, "STREET", position2, self.getRound())
 
     def MONOPOLY(self, playerName, resourceCard):
+        # resource card input!
         assert resourceCard in self.getResourceCards(), "invalid resourceCard"
         sum = 0
         for player in self.getPlayerList():
@@ -151,6 +153,7 @@ class Gamestate:
             self.getPlayerToName(playerName).updateResourceCards(resourceCard, 1)
 
     def DEVELOPMENT(self, playerName, resourceCard1, resourceCard2):
+        # input!
         self.getPlayerToName(playerName).updateResourceCards(resourceCard1, 1)
         self.getPlayerToName(playerName).updateResourceCards(resourceCard2, 1)
 
