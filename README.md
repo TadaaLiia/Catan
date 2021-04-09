@@ -17,9 +17,9 @@ This Project aims to implement a fully autonomous, intelligent Agent capable of 
 ### Board
 The game board is laid out randomly. The board changes each game.
 Example 1:
-![catanmap1|500](pics/map1.jpeg "example 1") 
+![catanmap1|300](pics/map1.jpeg "example 1") 
 Example 2:
-![catanmap2|500](pics/map2.jpeg "example 2") 
+![catanmap2|300](pics/map2.jpeg "example 2") 
 ### Setting up the game
 All players choose a color and the one who rolls the highest number gets priority 1. Priority 2 - 4 are distributed clockwise.
 Player 1 places his first village and an adjacent street. After that, everyone places clockwise. Player 4 places 2 villages and 2 streets directly, counterclockwise the remaining players place their village and street.
@@ -82,9 +82,9 @@ representation and generation of the board
 	- *generateMap()* to generate TileList randomly
 	- *getTileList()* returns TileList
 	- Example 1:
-		![catanmap1generation|500](mapgeneration_1.png "example 1") 
+		![catanmap1generation|300](pics/mapgeneration_1.png "example 1") 
 	- Example 2:
-		![catanmap2generation|500](mapgeneration_2.png "example 2")
+		![catanmap2generation|300](pics/mapgeneration_2.png "example 2")
 	- *getTilesToValue(value)* returns Numbers of Tiles with value "value"
 - **AvailableNodes**
 	- List, availableNodes(x, y, z)
