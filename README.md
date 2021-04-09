@@ -25,10 +25,10 @@ All players choose a color and the one who rolls the highest number gets priorit
 Player 1 places his first village and an adjacent street. After that, everyone places clockwise. Player 4 places 2 villages and 2 streets directly, counterclockwise the remaining players place their village and street.
 Everyone takes appropriate resource cards from stack.
 ### Distance Rule
-Villages and cities may only be placed at the corners of the terrain hexes, streets at the edges of the terrain hexes:
-![rule1|100](pics/distancerule_1.PNG "rule1") 
-There must be a free space between two buildings:
-![rule2|170](pics/distancerule_2.PNG "rule2") 
+- Villages and cities may only be placed at the corners of the terrain hexes, streets at the edges of the terrain hexes:
+	- ![rule1|100](pics/distancerule_1.PNG "rule1") 
+- There must be a free space between two buildings:
+	- ![rule2|170](pics/distancerule_2.PNG "rule2") 
 ### Turn Overview
 Player 1 begins.
 - **roll for resource production:** sum of the dice determines which terrain hexes produce resources for adjacent buildings (1 resource card per village, 2 ressource cards per city)
