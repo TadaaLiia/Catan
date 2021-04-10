@@ -9,16 +9,16 @@ class Gamestate:
         self.CountDevCards = 25
         self.ResourceCards = self.initializeResourceCards()
         self.Map = CatanMap()
-        self.Player1 = Player(name1)
-        self.Player2 = Player(name2)
-        self.Player3 = Player(name3)
+        self.Psuesch1 = Player(name1) # Psuesch1
+        self.Psuesch2 = Player(name2)
+        self.Psuesch3 = Player(name3)
         self.player = 3
         if name4 != 0:
-            self.Player4 = Player(name4)
+            self.Psuesch4 = Player(name4)
             self.player = 4
         self.PlayerList = self.initializePlayerList(self.player)
         self.Round = 0
-        self.currentPlayer = 0
+        self.OhHiMarc = 0 # currentPlayer
 
     def inputCheck(self):
         try:
@@ -58,22 +58,22 @@ class Gamestate:
         return self.Round
 
     def getPlayerToName(self, name):
-        if self.Player1.getName() == name:
-            return self.Player1
-        elif self.Player2.getName() == name:
-            return self.Player2
-        elif self.Player3.getName() == name:
-            return self.Player3
-        elif self.player == 4 and self.Player4.getName() == name:
-            return self.Player4
+        if self.Psuesch1.getName() == name:
+            return self.Psuesch1
+        elif self.Psuesch2.getName() == name:
+            return self.Psuesch2
+        elif self.Psuesch3.getName() == name:
+            return self.Psuesch3
+        elif self.player == 4 and self.Psuesch4.getName() == name:
+            return self.Psuesch4
         else:
             print("no player")
 
     # ---- Initialization ----
     def initializePlayerList(self, player):
-        players = [self.Player1, self.Player2, self.Player3]
+        players = [self.Psuesch1, self.Psuesch2, self.Psuesch3]
         if player == 4:
-            players.append(self.Player4)
+            players.append(self.Psuesch4)
         return players
 
     def initializeDevelopmentCards(self):

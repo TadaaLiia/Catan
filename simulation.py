@@ -4,7 +4,7 @@ import random
 class Simulation:
 
     def __init__(self, gamestate, player=4):
-        self.gamestate = gamestate
+        self.JarvisVision = gamestate
 
     # ---- turn ----
     def inputCheck(self):
@@ -18,7 +18,7 @@ class Simulation:
         return random.randrange(1, 7) + random.randrange(1, 7)
 
     def turn(self, playerName):
-        for card in self.gamestate.getPlayerToName(playerName).getDevelopmentCards():
+        for card in self.JarvisVision.getPlayerToName(playerName).getDevelopmentCards():
             if "KNIGHT_CARD" == card[0]:
                 print("1: play knight card, 0: skip")
                 answer = self.inputCheck()
@@ -55,41 +55,41 @@ class Simulation:
         print("bandit position")
         position = self.inputCheck()
         self.bandit(position)
-        villages = self.gamestate.Map.getVillagesToTile(position)
-        cities = self.gamestate.Map.getCitiesToTile(position)
+        villages = self.JarvisVision.Map.getVillagesToTile(position)
+        cities = self.JarvisVision.Map.getCitiesToTile(position)
         players = list(dict.fromkeys(villages + cities))
         for player in players:
             card = self.getPlayerToName(player).getRandomResourceCard()
             self.removeResourceCards(player, card)
             self.giveResourceCards(playerName, card)
 
-    # ---- Interaction with gamestate
+    # ---- Interaction with JarvisVision
 
     def getRound(self):
-        return self.gamestate.getRound()
+        return self.JarvisVision.getRound()
 
     def incRound(self):
-        self.gamestate.incRound()
+        self.JarvisVision.incRound()
 
     # ---- Interaction with CatanMap ----
     def getObjectList(self):
-        return self.gamestate.Map.getObjectList()
+        return self.JarvisVision.Map.getObjectList()
 
     def getAvailableStreetPositions(self, playerName):
-        return self.gamestate.Map.getAvailableStreets(playerName)
+        return self.JarvisVision.Map.getAvailableStreets(playerName)
 
     def getAvailableVillagePositions(self, playerName):
-        return self.gamestate.Map.getAvailableVillages(playerName, self.getRound())
+        return self.JarvisVision.Map.getAvailableVillages(playerName, self.getRound())
 
     def getAvailableCityPositions(self, playerName):
-        return self.gamestate.Map.getAvailableCities(playerName, self.getRound())
+        return self.JarvisVision.Map.getAvailableCities(playerName, self.getRound())
 
     def buildObject(self, playerName, type, position):
         assert type in ["STREET", "VILLAGE", "CITY"], "invalid type"
         if type == "STREET":
             assert self.getPlayerToName(playerName).getResourceCards()["WOOD"] != 0, "street: missing wood"
             assert self.getPlayerToName(playerName).getResourceCards()["CLAY"] != 0, "street: missing clay"
-            self.gamestate.Map.buildStuff(playerName, type, position, self.getRound())
+            self.JarvisVision.Map.buildStuff(playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, "WOOD")
             self.removeResourceCards(playerName, "CLAY")
         elif type == "VILLAGE":
@@ -97,7 +97,7 @@ class Simulation:
             assert self.getPlayerToName(playerName).getResourceCards()["CLAY"] != 0, "village: missing clay"
             assert self.getPlayerToName(playerName).getResourceCards()["SHEEP"] != 0, "village: missing sheep"
             assert self.getPlayerToName(playerName).getResourceCards()["WHEAT"] != 0, "village: missing wheat"
-            self.gamestate.Map.buildStuff(playerName, type, position, self.getRound())
+            self.JarvisVision.Map.buildStuff(playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, "WOOD")
             self.removeResourceCards(playerName, "CLAY")
             self.removeResourceCards(playerName, "SHEEP")
@@ -105,7 +105,7 @@ class Simulation:
         elif type == "CITY":
             assert self.getPlayerToName(playerName).getResourceCards()["ORE"] >= 3, "city: missing ore"
             assert self.getPlayerToName(playerName).getResourceCards()["WHEAT"] >= 2, "city: missing wheat"
-            self.gamestate.Map.buildStuff(playerName, type, position, self.getRound())
+            self.JarvisVision.Map.buildStuff(playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, "ORE")
             self.removeResourceCards(playerName, "ORE")
             self.removeResourceCards(playerName, "ORE")
@@ -113,31 +113,31 @@ class Simulation:
             self.removeResourceCards(playerName, "WHEAT")
 
     def bandit(self, position):
-        self.gamestate.Map.setBanditPosition(position)
+        self.JarvisVision.Map.setBanditPosition(position)
 
     # ---- Interaction with Player ----
     def priorityRoll(self, player=4):
         begin = random.randrange(player) + 1
-        self.gamestate.Player1.Priority = (1 + begin) % player + 1
-        self.gamestate.Player2.Priority = (2 + begin) % player + 1
-        self.gamestate.Player3.Priority = (3 + begin) % player + 1
+        self.JarvisVision.Player1.Priority = (1 + begin) % player + 1
+        self.JarvisVision.Player2.Priority = (2 + begin) % player + 1
+        self.JarvisVision.Player3.Priority = (3 + begin) % player + 1
         if player == 4:
-            self.gamestate.Player4.Priority = (4 + begin) % player + 1
+            self.JarvisVision.Player4.Priority = (4 + begin) % player + 1
 
     def giveResourceCards(self, playerName, card, count=1):
         for i in range(count):
-            self.gamestate.getPlayerToName(playerName).updateResourceCards(card, 1)
+            self.JarvisVision.getPlayerToName(playerName).updateResourceCards(card, 1)
 
     def removeResourceCards(self, playerName, card, count=1):
         for i in range(count):
-            self.gamestate.getPlayerToName(playerName).updateResourceCards(card, 0)
+            self.JarvisVision.getPlayerToName(playerName).updateResourceCards(card, 0)
 
     def handOutCards(self, roll):
-        tiles = self.gamestate.Map.getTilesToValue(roll)
-        players = self.gamestate.getPlayerList()
+        tiles = self.JarvisVision.Map.getTilesToValue(roll)
+        players = self.JarvisVision.getPlayerList()
         for tile in tiles:
-            villages = self.gamestate.Map.getVillagesToTile(tile[0])
-            cities = self.gamestate.Map.getCitiesToTile(tile[0])
+            villages = self.JarvisVision.Map.getVillagesToTile(tile[0])
+            cities = self.JarvisVision.Map.getCitiesToTile(tile[0])
             for player in players:
                 for v in villages:
                     if v == player.getName():
@@ -150,25 +150,25 @@ class Simulation:
         assert self.getPlayerToName(playerName).getResourceCards()["SHEEP"] != 0, "missing sheep"
         assert self.getPlayerToName(playerName).getResourceCards()["ORE"] != 0, "missing ore"
         assert self.getPlayerToName(playerName).getResourceCards()["WHEAT"] != 0, "missing wheat"
-        card = self.gamestate.getRandomDevCard()
-        self.gamestate.getPlayerToName(playerName).updateDevelopmentCards(card, self.getRound())
+        card = self.JarvisVision.getRandomDevCard()
+        self.JarvisVision.getPlayerToName(playerName).updateDevelopmentCards(card, self.getRound())
 
     def playDevelopmentCard(self, playerName, devCard):
         r = self.getPlayerToName(playerName).updateDevelopmentCards(devCard, self.getRound(), 1)
         if r == 1:
             if devCard == "KNIGHT_CARD":
-                self.gamestate.KNIGHTCARD(playerName)
+                self.JarvisVision.KNIGHTCARD(playerName)
             elif devCard == "VICTORY_POINT_CARD":
-                self.gamestate.VICTORYPOINTCARD(playerName)
+                self.JarvisVision.VICTORYPOINTCARD(playerName)
             elif devCard == "MONOPOLY":
-                self.gamestate.MONOPOLY(playerName)
+                self.JarvisVision.MONOPOLY(playerName)
             elif devCard == "DEVELOPMENT":
-                self.gamestate.DEVELOPMENT(playerName)
+                self.JarvisVision.DEVELOPMENT(playerName)
             elif devCard == "CONSTRUCTION":
-                self.gamestate.CONSTRUCTION(playerName)
+                self.JarvisVision.CONSTRUCTION(playerName)
 
     def getPlayerToName(self, name):
-        return self.gamestate.getPlayerToName(name)
+        return self.JarvisVision.getPlayerToName(name)
 
     def getLegalMoves(self, playerName):
         pass
@@ -183,14 +183,14 @@ if __name__ == "__main__":
     sim.giveResourceCards("jakob", "SHEEP", 10)
     sim.giveResourceCards("jakob", "ORE", 10)
     sim.giveResourceCards("lia", "ORE", 10)
-    sim.gamestate.MONOPOLY("jakob", "ORE")
+    sim.JarvisVision.MONOPOLY("jakob", "ORE")
     sim.giveResourceCards("edgar", "WOOD", 10)
     sim.giveResourceCards("edgar", "CLAY", 10)
     sim.giveResourceCards("edgar", "WHEAT", 10)
     sim.giveResourceCards("edgar", "ORE", 10)
     sim.giveResourceCards("edgar", "SHEEP", 10)
-    # print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
-    # print(sim.gamestate.getPlayerToName("jakob").check7())
+    # print(sim.JarvisVision.getPlayerToName("jakob").getResourceCards())
+    # print(sim.JarvisVision.getPlayerToName("jakob").check7())
     sim.buildObject("jakob", "VILLAGE", (4, 5, 10))
     sim.buildObject("jakob", "CITY", (4, 5, 10))
     sim.buildObject("jakob", "VILLAGE", (2, 6, 1))
@@ -204,30 +204,30 @@ if __name__ == "__main__":
     sim.incRound()
     sim.drawDevelopmentCard("jakob")
     sim.drawDevelopmentCard("jakob")
-    # print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
-    # print(sim.gamestate.getPlayerToName("lia").getResourceCards())
+    # print(sim.JarvisVision.getPlayerToName("jakob").getResourceCards())
+    # print(sim.JarvisVision.getPlayerToName("lia").getResourceCards())
     sim.turn("jakob")
-    # print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
+    # print(sim.JarvisVision.getPlayerToName("jakob").getResourceCards())
     # sim.getPlayerToName("jakob").trade4("WOOD", "ORE")
-    # print(sim.gamestate.getPlayerToName("edgar").getResourceCards())
-    # sim.gamestate.trade3("edgar", "WOOD", "ORE")
-    # print(sim.gamestate.getPlayerToName("edgar").getResourceCards())
-    # print(sim.gamestate.getPlayerToName("jakob").getDevelopmentCards())
+    # print(sim.JarvisVision.getPlayerToName("edgar").getResourceCards())
+    # sim.JarvisVision.trade3("edgar", "WOOD", "ORE")
+    # print(sim.JarvisVision.getPlayerToName("edgar").getResourceCards())
+    # print(sim.JarvisVision.getPlayerToName("jakob").getDevelopmentCards())
     # sim.turn("jakob")
     # sim.buildObject("lia", "VILLAGE", (13, 19, 20))
     # sim.buildObject("lia", "VILLAGE", (25, 30, 31))
 
     # print(sim.getObjectList())
     # sim.incRound()
-    # print(sim.gamestate.Map.getAvailableStreets("jakob"))
+    # print(sim.JarvisVision.Map.getAvailableStreets("jakob"))
     # print(sim.getAvailableStreetPositions("jakob"))
     # sim.drawDevelopmentCard("lia")
     # sim.incRound()
     # sim.buildObject("jakob", "VILLAGE", (10, 11, 17))
-    # print(sim.gamestate.getPlayerToName("jakob").getResourceCards())
+    # print(sim.JarvisVision.getPlayerToName("jakob").getResourceCards())
 
     # sim.drawDevelopmentCard("lia")
-    # print(sim.gamestate.getPlayerToName("lia").getDevelopmentCards())
+    # print(sim.JarvisVision.getPlayerToName("lia").getDevelopmentCards())
 # liste der moves
-# naechster gamestate nach move
+# naechster JarvisVision nach move
 # simulate random game: 1 gewonnen

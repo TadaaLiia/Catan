@@ -25,6 +25,7 @@ All players choose a color and the one who rolls the highest number gets priorit
 Player 1 places his first village and an adjacent street. After that, everyone places clockwise. Player 4 immediately places 2 villages and 2 streets, then counterclockwise the remaining players place their village and street.
 Each terrain hex produces resource cards for adjacent villages. Everyone takes the appropriate resource cards from the stack. 
 The desert does not produce resource cards. The bandit is placed in the desert.
+- <img src="pics/setup.jpeg" width="500">
 ### Distance Rule
 - Villages and cities may only be placed at the corners of the terrain hexes, streets at the edges of the terrain hexes:
 	- <img src="pics/distancerule_1.PNG" width="150">
@@ -32,7 +33,7 @@ The desert does not produce resource cards. The bandit is placed in the desert.
 	- <img src="pics/distancerule_2.PNG" width="200"> 	
 ### Turn Overview
 Player 1 begins.
-- **roll dice for resource production:** sum of the dice determines which terrain hexes produce resources for adjacent buildings (1 resource card per village, 2 ressource cards per city)
+- **roll dice for resource production:** sum of the dice determines which terrain hexes produce resources for adjacent buildings (1 resource card per village, 2 resource cards per city)
 - **trade** 
 	- with other players
 	- 4:1 with the bank: 4 identical resource card back in their stack, take any 1 resource card of your choice
@@ -64,7 +65,7 @@ Player 1 begins.
 	- player steals one random resource card from an opponent who has a building adjacent to the terrain hex
 - **bandit** prevents that players receive resources from terrain hex
 ### Development Cards
-- **Knight Card** move Bandit, draw a card from an opponent
+- **Knight Card** move bandit, draw a card from an opponent
 - **Monopoly** choose a resource card, you receivef all resource cards of this type from your opponents
 - **Development** take any two resource cards from the stack
 - **Construction** build two streets
@@ -77,7 +78,7 @@ If a player has 10 or more victory points during his turn, the game ends and he 
 
 ## Implementation in Python
 ### Class CatanMap
-Pepresentation and generation of the board
+Representation and generation of the board
 - **Adjacency**
 	- Matrix(36x36): adjacent tiles to represent map
 	- *generateAdjacency()* to generate Adjacency
@@ -94,14 +95,14 @@ Pepresentation and generation of the board
 		- ![catanmap2generation](pics/mapgeneration_2.png)
 	- *getTilesToValue(value)* returns ID of Tiles with value "value"
 - **AvailableNodes**
-	- List of available Nodes (tile1, tile2, tile3)
+	- List of available nodes (tile1, tile2, tile3)
 	- (tile1, tile2, tile3): id of adjacent hex tiles
 	- all available positions for buildings
 	- *generateNodeList()* to initialize AvailableNodes
 	- *getAvailableNodes()* returns AvailableNodes
-	- *updateAvailableNodes(position)* input: vertices/position of built village -> deletes all surrounding 		positions in AvailableNodes
+	- *updateAvailableNodes(position)* input: vertices/position of built village -> deletes all surrounding positions in AvailableNodes
 - **ObjectList**
-	- List of Objects on Map: {player : PLAYERNAME, type: TYPE OF OBJECT, position: POSITION}
+	- List of objects on map: {player : PLAYERNAME, type: TYPE OF OBJECT, position: POSITION}
 	- *initializeObjectList()* to initialize ObjectList with Ports
 	- *getObjectList()* returns ObjectList
 	- *getPlayerShit(player)* returns all Objects of player
