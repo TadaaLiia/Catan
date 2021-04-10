@@ -9,7 +9,7 @@ class Gamestate:
         self.CountDevCards = 25
         self.ResourceCards = self.initializeResourceCards()
         self.Map = CatanMap()
-        self.Psuesch1 = Player(name1) # Psuesch1
+        self.Psuesch1 = Player(name1)  # Psuesch1
         self.Psuesch2 = Player(name2)
         self.Psuesch3 = Player(name3)
         self.player = 3
@@ -18,16 +18,26 @@ class Gamestate:
             self.player = 4
         self.PlayerList = self.initializePlayerList(self.player)
         self.Round = 0
-        self.OhHiMarc = 0 # currentPlayer
+        self.OhHiMarc = 0  # currentPlayer
 
-    def inputCheck(self):
+    def inputCheck(self, type):
         try:
-            i = int(input("> "))
+            if type == int:
+                i = int(input("> "))
+            elif type == tuple:
+                i = tuple(int(x) for x in input("> ").split(','))
+            elif type == str:
+                i = input("> ")
+                if i not in self.getResourceCards():
+                    raise ValueError
+            else:
+                i = None
         except ValueError:
-            i = self.inputCheck()
+            i = self.inputCheck(type)
         return i
 
     # ---- getter ----
+
     def getDevelopmentCards(self):
         return self.DevelopmentCards
 
@@ -121,28 +131,25 @@ class Gamestate:
     def decCountDev(self):
         self.CountDevCards -= 1
 
-    # ---- Development cards, unfinished
+    # ---- Development cards ----
     def KNIGHTCARD(self, playerName):
         print("position:")
-        position = self.inputCheck()
-        # self.getPlayerToName(playerName).updateDevelopmentCards("KNIGHT_CARD")
+        position = self.inputCheck(int)
         self.Map.setBanditPosition(position)
 
     def VICTORYPOINTCARD(self, playerName):
         self.getPlayerToName(playerName).updateVictoryPoints()
 
     def CONSTRUCTION(self, playerName):
-        """
-        input check, positionen checken
-        """
-        position1 = input()
-        position2 = input()
+        print("position1:")
+        position1 = self.inputCheck(tuple)
+        print("position2:")
+        position2 = self.inputCheck(tuple)
         self.Map.buildStuff(playerName, "STREET", position1, self.getRound())
         self.Map.buildStuff(playerName, "STREET", position2, self.getRound())
 
-    def MONOPOLY(self, playerName, resourceCard):
-        # resource card input!
-        assert resourceCard in self.getResourceCards(), "invalid resourceCard"
+    def MONOPOLY(self, playerName):
+        resourceCard = self.inputCheck(str)
         sum = 0
         for player in self.getPlayerList():
             i = player.getResourceCards()[resourceCard]
@@ -152,8 +159,9 @@ class Gamestate:
         for i in range(sum):
             self.getPlayerToName(playerName).updateResourceCards(resourceCard, 1)
 
-    def DEVELOPMENT(self, playerName, resourceCard1, resourceCard2):
-        # input!
+    def DEVELOPMENT(self, playerName):
+        resourceCard1 = self.inputCheck(str)
+        resourceCard2 = self.inputCheck(str)
         self.getPlayerToName(playerName).updateResourceCards(resourceCard1, 1)
         self.getPlayerToName(playerName).updateResourceCards(resourceCard2, 1)
 
@@ -227,5 +235,4 @@ class Gamestate:
 
 
 if __name__ == "__main__":
-    lille = Gamestate("lia", "jakob", "edgar")
-    print(lille.getRandomDevCard())
+    gs = Gamestate("lia", "jakob", "edgar")

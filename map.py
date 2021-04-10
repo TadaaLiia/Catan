@@ -252,6 +252,7 @@ class CatanMap:
         for street in availableStreets:
             if self.getAdjacency()[street[0]][street[1]] == 1 and street not in allStreets:
                 final.append(tuple(sorted(street)))
+        final = list(dict.fromkeys(final))
         return sorted(final)
 
     def getAvailableVillages(self, player, round=1):

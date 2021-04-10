@@ -29,14 +29,13 @@ class Simulation:
         print("roll " + str(r))
         if r != 7:
             self.handOutCards(r)
-        elif r == 7:
+        else:
             self.roll7(playerName)
         # option1: devcard speilen
         # option2: traden
         # option3:bauen
         # option4: exit
-        exit = False
-        while not exit:
+        while True:
             print("1: DevCard, 2: Trade, 3: Build, 4: exit")
             option = input("> ")
             if option == str(1):
@@ -47,7 +46,7 @@ class Simulation:
             elif option == str(3):
                 pass
             elif option == str(4):
-                exit = True
+                break
             else:
                 print("invalid input")
 
@@ -183,7 +182,6 @@ if __name__ == "__main__":
     sim.giveResourceCards("jakob", "SHEEP", 10)
     sim.giveResourceCards("jakob", "ORE", 10)
     sim.giveResourceCards("lia", "ORE", 10)
-    sim.JarvisVision.MONOPOLY("jakob", "ORE")
     sim.giveResourceCards("edgar", "WOOD", 10)
     sim.giveResourceCards("edgar", "CLAY", 10)
     sim.giveResourceCards("edgar", "WHEAT", 10)
@@ -201,13 +199,24 @@ if __name__ == "__main__":
     sim.drawDevelopmentCard("jakob")
     sim.drawDevelopmentCard("jakob")
     sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
+    sim.drawDevelopmentCard("jakob")
     sim.incRound()
     sim.drawDevelopmentCard("jakob")
     sim.drawDevelopmentCard("jakob")
-    # print(sim.JarvisVision.getPlayerToName("jakob").getResourceCards())
-    # print(sim.JarvisVision.getPlayerToName("lia").getResourceCards())
+    sim.incRound()
+    print(sim.JarvisVision.getPlayerToName("jakob").getResourceCards())
+    print(sim.JarvisVision.getPlayerToName("lia").getResourceCards())
     sim.turn("jakob")
-    # print(sim.JarvisVision.getPlayerToName("jakob").getResourceCards())
+    print(sim.JarvisVision.getPlayerToName("jakob").getResourceCards())
+    print(sim.JarvisVision.getPlayerToName("lia").getResourceCards())
     # sim.getPlayerToName("jakob").trade4("WOOD", "ORE")
     # print(sim.JarvisVision.getPlayerToName("edgar").getResourceCards())
     # sim.JarvisVision.trade3("edgar", "WOOD", "ORE")
