@@ -71,7 +71,7 @@ class CatanBoard():
         # blue_hex.draw(self.screen, self.game_font)
         # Hex mit Offset = (1,0) ist dann rechts neben dem Center-Hex
         # Hex mit offset = (0.5, 3/4) ist rechts unten neben dem Center-Hex
-        # green_hex = Hex(GREEN, number=9, offset=(0.5,3/4))
+        # green_hex = Hex(GREEN, number=9, offset=(1,0))
         # green_hex.draw(self.screen, self.game_font)
         catanMap = map.CatanMap()
         self.generateBoard(catanMap.generateMap())

@@ -2,8 +2,9 @@ from gamestate import Gamestate
 from simulation import Simulation
 import math
 
+
 class GametreeNode:
-    def __init__(self, gamestate, move = None):
+    def __init__(self, gamestate, move=None):
         self.parent = None
         self.children = []
         self.gamestate = gamestate
@@ -11,23 +12,24 @@ class GametreeNode:
         self.value = 0
         self.simulations = 0
         self.move = move
- 
+
     def hasChild(self):
         return len(self.children) > 0
- 
+
     def addChild(self, child):
         self.children.append(child)
         child.parent = self
- 
+
     def hasParent(self):
         return not self.parent == None
- 
+
     def update(self, v):
         self.v += v
         self.simulations += 1
 
+
 class MCTSHandler():
-    def __init__(self, node, EXPLORATION_PARAMETER = 1):
+    def __init__(self, node, EXPLORATION_PARAMETER=1):
         self.GametreeNode = node
         self.EXPLORATION_PARAMETER = EXPLORATION_PARAMETER
 
@@ -35,9 +37,9 @@ class MCTSHandler():
         if node.simulations > 0:
             return math.inf
         return Node.v / (1. * Node.NumGames) + (EXPLORATION_PARAMETER * math.sqrt(
-        20*math.log(Node.parent.NumGames) / (1. * Node.NumGames)))
+            20 * math.log(Node.parent.NumGames) / (1. * Node.NumGames)))
 
-    def selection(self, node = self.GametreeNode):
+    def selection(self, node=self.GametreeNode):
         while node.hasChild():
             node = max([self.calcUCB1(child) for child in node.children])
         return node
@@ -64,4 +66,4 @@ class MCTSHandler():
             self.expansion(selectedNode)
             result = self.simulation(selectedNode)
             self.backpropagation(selectedNode, result)
-        return 
+        return
