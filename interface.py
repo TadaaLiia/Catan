@@ -1,6 +1,7 @@
 # import the pygame module
 import pygame
 import map
+from entities import *
 
 # import pygame.locals for easier
 # access to key coordinates
@@ -106,13 +107,13 @@ class CatanBoard():
     def generateBoard(self, TileList):
         offsets = self.buildGrid()
         mapping = {
-            "WHEAT": YELLOW,
-            "ORE": GRAY,
-            "SHEEP": GREEN,
-            "WOOD": DARK_GREEN,
-            "CLAY": BROWN,
-            "DESERT": WHITE,
-            "OCEAN": BLUE
+            Tiles.WHEAT: YELLOW,
+            Tiles.ORE: GRAY,
+            Tiles.SHEEP: GREEN,
+            Tiles.WOOD: DARK_GREEN,
+            Tiles.CLAY: BROWN,
+            Tiles.DESERT: WHITE,
+            Tiles.OCEAN: BLUE
         }
         i = 0
         for Tile in TileList:

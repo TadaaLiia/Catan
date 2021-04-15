@@ -1,4 +1,5 @@
 import random
+from entities import *
 
 
 class Player:
@@ -50,27 +51,20 @@ class Player:
     # ---- initialization ----
     def initializeAvailableObjects(self):
         availableObjects = {
-            "CITY": 4,
-            "VILLAGE": 5,
-            "STREET": 15
+            Objects.CITY: 4,
+            Objects.VILLAGE: 5,
+            Objects.STREET: 15
         }
         return availableObjects
 
     def initializeResourceCards(self):
-        resourceCards = {
-            "WHEAT": 0,
-            "ORE": 0,
-            "SHEEP": 0,
-            "WOOD": 0,
-            "CLAY": 0
-        }
-        return resourceCards
+        return dict.fromkeys(Resources, 0)
 
     # ---- update ----
     def updateAvailableObjects(self, object, flag=0):
         assert object in self.AvailableObjects, "invalid object"
 
-        if flag == 1 and object == "VILLAGE":
+        if flag == 1 and object == Objects.VILLAGE:
             assert self.AvailableObjects[object] < 15, "invalid operation"
             self.AvailableObjects[object] += 1
         else:
@@ -126,17 +120,6 @@ class Player:
                 rand -= v
             else:
                 return k
-
-    def trade4(self, card1, card2):
-        assert card1 in self.getResourceCards(), "invalid card"
-        assert card2 in self.getResourceCards(), "invalid card"
-        assert self.getResourceCards()[card1] >= 4, "you need 4 cards"
-        self.trade(4, card1, card2)
-
-    def trade(self, x, card1, card2):
-        for i in range(x):
-            self.updateResourceCards(card1, 0)
-        self.updateResourceCards(card2, 1)
 
     def chooseDevCard(self):
         if len(self.getDevelopmentCards()) != 0:

@@ -1,4 +1,5 @@
 import random
+from entities import *
 
 
 class CatanMap:
@@ -18,7 +19,8 @@ class CatanMap:
         self.Adjacency = self.generateAdjacency()
         self.AvailableNodes = self.generateNodeList()
         self.TileList = self.generateMap()
-        self.ObjectList = self.initializeObjectList()
+        self.ObjectList = []
+        self.PortDict = self.initializePortDict()
 
     # ---- getter ----
     def getBanditPosition(self):
@@ -35,6 +37,9 @@ class CatanMap:
 
     def getObjectList(self):
         return self.ObjectList
+
+    def getPortDict(self):
+        return self.PortDict
 
     # ---- setter ----
     def setBanditPosition(self, position):
@@ -131,25 +136,25 @@ class CatanMap:
 
     def generateMap(self, seed=None):
         AVAILABLE_TILES = {
-            "WHEAT": 4,
-            "ORE": 3,
-            "SHEEP": 4,
-            "WOOD": 4,
-            "CLAY": 3,
-            "DESERT": 1
+            Tiles.WHEAT: 4,
+            Tiles.ORE: 3,
+            Tiles.SHEEP: 4,
+            Tiles.WOOD: 4,
+            Tiles.CLAY: 3,
+            Tiles.DESERT: 1
         }
 
         # Numbers have to be in that Order
-        AVAILABLE_NUMBERS = [5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11]
+        MAXSPDCBR = [5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11]
 
         TILES = [
-            ("OCEAN", 0), ("OCEAN", 0), ("OCEAN", 0), ("OCEAN", 0),
-            ("OCEAN", 0), (None, "A"), (None, "B"), (None, "C"), ("OCEAN", 0),
-            ("OCEAN", 0), (None, "L"), (None, "M"), (None, "N"), (None, "D"), ("OCEAN", 0),
-            ("OCEAN", 0), (None, "K"), (None, "O"), (None, "X"), (None, "P"), (None, "E"), ("OCEAN", 0),
-            ("OCEAN", 0), (None, "J"), (None, "Q"), (None, "R"), (None, "F"), ("OCEAN", 0),
-            ("OCEAN", 0), (None, "I"), (None, "H"), (None, "G"), ("OCEAN", 0),
-            ("OCEAN", 0), ("OCEAN", 0), ("OCEAN", 0), ("OCEAN", 0)
+            (Tiles.OCEAN, 0), (Tiles.OCEAN, 0), (Tiles.OCEAN, 0), (Tiles.OCEAN, 0),
+            (Tiles.OCEAN, 0), (None, "A"), (None, "B"), (None, "C"), (Tiles.OCEAN, 0),
+            (Tiles.OCEAN, 0), (None, "L"), (None, "M"), (None, "N"), (None, "D"), (Tiles.OCEAN, 0),
+            (Tiles.OCEAN, 0), (None, "K"), (None, "O"), (None, "X"), (None, "P"), (None, "E"), (Tiles.OCEAN, 0),
+            (Tiles.OCEAN, 0), (None, "J"), (None, "Q"), (None, "R"), (None, "F"), (Tiles.OCEAN, 0),
+            (Tiles.OCEAN, 0), (None, "I"), (None, "H"), (None, "G"), (Tiles.OCEAN, 0),
+            (Tiles.OCEAN, 0), (Tiles.OCEAN, 0), (Tiles.OCEAN, 0), (Tiles.OCEAN, 0)
         ]
 
         tileList = []
@@ -184,26 +189,23 @@ class CatanMap:
 
         # Distribute Numbers
         for tile in tile_order:
-            assert tileList[tile][1] != 0
-            if tileList[tile] == "DESERT":
-                tileList[tile] = ("DESERT", 0)
+            if tileList[tile] == Tiles.DESERT:
+                tileList[tile] = (Tiles.DESERT, 0)
                 self.setBanditPosition(tile)
             else:
-                tileList[tile] = (tileList[tile], AVAILABLE_NUMBERS.pop(0))
+                tileList[tile] = (tileList[tile], MAXSPDCBR.pop(0))
         return tileList
 
-    def initializeObjectList(self):
-        objectList = []
-        objectList.append({"player": None, "type": "PORT", "position": (0, 5)})
-        objectList.append({"player": None, "type": "PORT", "position": (8, 13)})
-        objectList.append({"player": None, "type": "PORT", "position": (20, 21)})
-        objectList.append({"player": None, "type": "PORT", "position": (29, 33)})
-        objectList.append({"player": None, "type": "SHEEP_PORT", "position": (2, 6)})
-        objectList.append({"player": None, "type": "ORE_PORT", "position": (9, 10)})
-        objectList.append({"player": None, "type": "WHEAT_PORT", "position": (22, 23)})
-        objectList.append({"player": None, "type": "CLAY_PORT", "position": (26, 32)})
-        objectList.append({"player": None, "type": "WOOD_PORT", "position": (30, 35)})
-        return objectList
+    def initializePortDict(self):
+        portDict = {
+            Ports.PORT: [(0, 1, 5), (0, 4, 5), (7, 8, 13), (8, 13, 14), (14, 20, 21), (20, 21, 27), (28, 29, 33), (29, 33, 34)],
+            Ports.SHEEP: [(1, 2, 6), (2, 6, 7)],
+            Ports.ORE: [(4, 9, 10), (9, 10, 16)],
+            Ports.WOOD: [(30, 31, 35), (30, 34, 35)],
+            Ports.CLAY: [(26, 27, 32), (26, 31, 32)],
+            Ports.WHEAT: [(16, 22, 23), (22, 23, 28)]
+        }
+        return portDict
 
     # ---- Objects
     def updateAvailableNodes(self, position):
@@ -225,15 +227,15 @@ class CatanMap:
 
     def getPlayerShit(self, player):
         objects = [x for x in self.getObjectList() if x["player"] == player]
-        buildings = [x["position"] for x in objects if x["type"] != "STREET"]
-        streets = [x["position"] for x in objects if x["type"] == "STREET"]
+        buildings = [x["position"] for x in objects if x["type"] != Objects.STREET]
+        streets = [x["position"] for x in objects if x["type"] == Objects.STREET]
         return objects, buildings, streets
 
     def getAvailableStreets(self, player):
         # All player Objects
         playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
         # Streets
-        allStreets = [x["position"] for x in self.getObjectList() if x["type"] == "STREET"]
+        allStreets = [x["position"] for x in self.getObjectList() if x["type"] == Objects.STREET]
         # Streets around Cities and Villages
         availableStreets = []
         for b in playerBuildings:
@@ -270,27 +272,27 @@ class CatanMap:
     def getAvailableCities(self, player, round=1):
         assert round != 0, "you are not allowed to build cities."
         playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
-        return [x["position"] for x in playerObjects if x["type"] == "VILLAGE"]
+        return [x["position"] for x in playerObjects if x["type"] == Objects.VILLAGE]
 
     def buildStuff(self, player, type, position, round=1):
         pos = tuple(sorted(position))
         # Street -> (x,y) in available streets(player)
-        if type == "STREET":
+        if type == Objects.STREET:
             assert len(pos) == 2, "invalid position"
             assert pos in self.getAvailableStreets(player), "street not available"
             self.ObjectList.append({"player": player, "type": type, "position": pos})
         # Village -> (x,y,z) in availableNodes
-        elif type == "VILLAGE":
+        elif type == Objects.VILLAGE:
             assert len(pos) == 3, "invalid position"
             assert pos in self.getAvailableVillages(player, round), "node not available or two streets required!"
             self.ObjectList.append({"player": player, "type": type, "position": pos})
             self.updateAvailableNodes(pos)
         # City -> {player,village,(x,y,z)} in ObjectList
-        elif type == "CITY":
+        elif type == Objects.CITY:
             assert len(pos) == 3, "invalid position"
             assert pos in self.getAvailableCities(player), "no village available"
             self.ObjectList.append({"player": player, "type": type, "position": pos})
-            self.ObjectList.remove({"player": player, "type": "VILLAGE", "position": pos})
+            self.ObjectList.remove({"player": player, "type": Objects.VILLAGE, "position": pos})
         else:
             print("incorrect type")
             return
@@ -306,15 +308,17 @@ class CatanMap:
         return(tiles)
 
     def getVillagesToTile(self, tile):
-        allVillages = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == "VILLAGE"]
+        allVillages = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == Objects.VILLAGE]
         villages = []
         for v in allVillages:
+
+
             if v[1][0] == tile or v[1][1] == tile or v[1][2] == tile:
                 villages.append(v[0])
         return villages
 
     def getCitiesToTile(self, tile):
-        allCities = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == "CITY"]
+        allCities = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == Objects.CITY]
         cities = []
         for c in allCities:
             if c[1][0] == tile or c[1][1] == tile or c[1][2] == tile:
@@ -325,15 +329,15 @@ class CatanMap:
 if __name__ == "__main__":
     cmap = CatanMap()
     print(cmap.getTileList())
-    # cmap.buildStuff("jakob", "VILLAGE", (4, 5, 10), 0)
-    # cmap.buildStuff("jakob", "CITY", (4, 5, 10))
-    # cmap.buildStuff("jakob", "VILLAGE", (2, 6, 1), 0)
-    # cmap.buildStuff("jakob", "STREET", (5, 10))
-    # cmap.buildStuff("jakob", "STREET", (11, 10))
-    # cmap.buildStuff("jakob", "VILLAGE", (10, 11, 17))
-    # cmap.buildStuff("lia", "VILLAGE", (13, 19, 20), 0)
-    # cmap.buildStuff("jakob", "VILLAGE", (9, 10, 16), 0)
-    # print(cmap.getAvailableStreets("jakob"))
+    cmap.buildStuff("jamoinmoritz", Objects.VILLAGE, (10, 11, 17), 0)
+    cmap.buildStuff("jamoinmoritz", Objects.VILLAGE, (18, 24, 25), 0)
+    cmap.buildStuff("jamoinmoritz", Objects.STREET, (10, 17), 0)
+    cmap.buildStuff("jamoinmoritz", Objects.STREET, (24, 25), 0)
+    cmap.buildStuff("maxspdcbr", Objects.VILLAGE, (23, 24, 29), 0)
+    cmap.buildStuff("maxspdcbr", Objects.VILLAGE, (12, 13, 19), 0)
+    cmap.buildStuff("maxspdcbr", Objects.STREET, (13, 19), 0)
+    cmap.buildStuff("maxspdcbr", Objects.STREET, (23, 24), 0)
+    print(cmap.getAvailableStreets("jamoinmoritz"))
     # print(cmap.getTileList())
     # cmap.setBanditPosition(10)
     # for i in range(2, 13):
