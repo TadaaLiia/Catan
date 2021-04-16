@@ -27,8 +27,8 @@ class Hex(pygame.sprite.Sprite):
         super(Hex, self).__init__()
         self.color = color
         self.size = size
-        # Offset soll immer in relation zu einer Hex-Breite bzw Länge sein
         self.number = number
+        # Offset soll immer in relation zu einer Hex-Breite bzw Länge sein
         self.offset = (offset[0] * self.size, offset[1] * self.size)
 
     def calcHexCoordinates(self):
@@ -83,22 +83,11 @@ class CatanBoard():
         self.running = True
         self.game_font = pygame.freetype.Font(FONT_PATH, 24)
         self.hexes = []
-        # blue_hex = Hex(BLUE, number=5)
-        # blue_hex.draw(self.screen, self.game_font)
-        # Hex mit Offset = (1,0) ist dann rechts neben dem Center-Hex
-        # Hex mit offset = (0.5, 3/4) ist rechts unten neben dem Center-Hex
-        # green_hex = Hex(GREEN, number=9, offset=(1,0))
-        # green_hex.draw(self.screen, self.game_font)
         catanMap = map.CatanMap()
         self.generateBoard(catanMap.generateMap())
         self.gameloop()
 
     def buildGrid(self):
-        # Layers is a number representing the number of rings
-        # Layers = 1
-        #    [x][x]
-        #   [x][x][x]
-        #    [x][x]
         offsets = [
             [0, 1, 2, 3],
             [4, 5, 6, 7, 8],
@@ -109,8 +98,6 @@ class CatanBoard():
             [33, 34, 35, 36]
         ]
         result = []
-        # (0,0) -> (0,0)
-        # (1,0) -> (- 0.5, 3/4)
         horizontal_offsets = [0, -0.5, -1, -1.5, -1, -0.5, 0]
         base_offset = (0, 0)
         for row in range(len(offsets)):
@@ -130,25 +117,27 @@ class CatanBoard():
             Tiles.DESERT: WHITE,
             Tiles.OCEAN: BLUE
         }
-        i = 0
-        for Tile in TileList:
+        for i, Tile in enumerate(TileList):
             newHex = Hex(mapping[Tile[0]], number=Tile[1], offset=offsets[i])
             newHex.draw(self.screen, self.game_font)
             self.hexes.append(newHex)
-            i += 1
 
     def gameloop(self):
         while self.running:
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
-                    # If the Backspace key has been pressed set
-                    # running to false to exit the main loop
                     if event.key == K_BACKSPACE:
-                        gameOn = False
+                        # reset board
+                        pass
+                    elif event.key == K_RIGHT:
+                        # show next step
+                        pass
+                    elif event.key == K_LEFT:
+                        # show previous step
+                        pass
                 elif event.type == QUIT:
-                    running = False
+                    self.running = False
 
-                # Update the Display
                 pygame.display.flip()
 
 
