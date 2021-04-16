@@ -61,17 +61,18 @@ class Hex(pygame.sprite.Sprite):
         number_rect.center = coordinates
         screen.blit(number, number_rect)
 
-    def _drawHex(self, screen):
-        pygame.draw.polygon(screen, self.color, self.calcHexCoordinates())
+    def _drawHex(self, screen, points):
+        pygame.draw.polygon(screen, self.color, points)
 
-    def _drawOutline(self, screen):
+    def _drawOutline(self, screen, points):
         pygame.draw.lines(screen, DARK_GRAY, closed=True,
-                          points=self.calcHexCoordinates(), width=1)
+                          points=points, width=1)
 
     def draw(self, screen, game_font):
-        self._drawHex(screen)
+        hex_coordinates = self.calcHexCoordinates()
+        self._drawHex(screen, hex_coordinates)
         self._drawNum(screen, game_font)
-        self._drawOutline(screen)
+        self._drawOutline(screen, hex_coordinates)
 
 
 class CatanBoard():
