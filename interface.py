@@ -9,13 +9,14 @@ from pygame.locals import *
 import pygame.freetype
 import math
 
-BLUE = pygame.Color(0, 0, 128)
-WHITE = pygame.Color(255, 255, 255)
-DARK_GREEN = pygame.Color(0, 50, 0)
-GREEN = pygame.Color(0, 255, 0)
-GRAY = pygame.Color(127, 127, 127)
-YELLOW = pygame.Color(255, 255, 0)
-BROWN = pygame.Color(200, 190, 140)
+BLUE = pygame.Color("#78e3fd")
+WHITE = pygame.Color("#F8F7F9")
+DARK_GREEN = pygame.Color("#082d0f")
+GREEN = pygame.Color("#7FB800")
+GRAY = pygame.Color("#8B8982")
+YELLOW = pygame.Color("#FED766")
+BROWN = pygame.Color("#7A4419")
+DARK_GRAY = pygame.Color("#3C3C3C")
 
 MIDPOINT = (400, 50)
 FONT_PATH = "data/RobotoMono-Regular.ttf"
@@ -33,14 +34,18 @@ class Hex(pygame.sprite.Sprite):
     def calcHexCoordinates(self):
         # In the pointy orientation, a hexagon has width w = sqrt(3) * size
         # and height h = 2 * size. The sqrt(3) comes from sin(60°).
-        hex_MIDPOINT = (MIDPOINT[0] + (self.offset[0] * math.sqrt(3)), MIDPOINT[1] + (self.offset[1] * 2))
+        hex_MIDPOINT = (MIDPOINT[0] + (self.offset[0] *
+                        math.sqrt(3)), MIDPOINT[1] + (self.offset[1] * 2))
         x_width = self.size * math.sqrt(3)
         y_height = self.size * 2
         coordinates = [
-            ((hex_MIDPOINT[0] - (x_width * 0.5)), (hex_MIDPOINT[1] + (0.25 * y_height))),
+            ((hex_MIDPOINT[0] - (x_width * 0.5)),
+             (hex_MIDPOINT[1] + (0.25 * y_height))),
             (hex_MIDPOINT[0], (hex_MIDPOINT[1] + (0.5 * y_height))),
-            ((hex_MIDPOINT[0] + (x_width * 0.5), (hex_MIDPOINT[1] + (0.25 * y_height)))),
-            ((hex_MIDPOINT[0] + (x_width * 0.5), (hex_MIDPOINT[1] - (0.25 * y_height)))),
+            ((hex_MIDPOINT[0] + (x_width * 0.5),
+             (hex_MIDPOINT[1] + (0.25 * y_height)))),
+            ((hex_MIDPOINT[0] + (x_width * 0.5),
+             (hex_MIDPOINT[1] - (0.25 * y_height)))),
             (hex_MIDPOINT[0], (hex_MIDPOINT[1] - (0.5 * y_height))),
             ((hex_MIDPOINT[0] - (x_width * 0.5)), (hex_MIDPOINT[1] - (0.25 * y_height)))]
         return coordinates
@@ -48,16 +53,25 @@ class Hex(pygame.sprite.Sprite):
     def _drawNum(self, screen, game_font):
         if not self.number:
             return
-        hex_MIDPOINT = (MIDPOINT[0] + (self.offset[0] * math.sqrt(3)), MIDPOINT[1] + (self.offset[1] * 2))
+        hex_MIDPOINT = (MIDPOINT[0] + (self.offset[0] *
+                        math.sqrt(3)), MIDPOINT[1] + (self.offset[1] * 2))
         coordinates = (hex_MIDPOINT[0], hex_MIDPOINT[1])
-        game_font.render_to(screen, coordinates, str(self.number), WHITE)
+        number, number_rect = game_font.render(
+            str(self.number), WHITE)
+        number_rect.center = coordinates
+        screen.blit(number, number_rect)
 
     def _drawHex(self, screen):
         pygame.draw.polygon(screen, self.color, self.calcHexCoordinates())
 
+    def _drawOutline(self, screen):
+        pygame.draw.lines(screen, DARK_GRAY, closed=True,
+                          points=self.calcHexCoordinates(), width=1)
+
     def draw(self, screen, game_font):
         self._drawHex(screen)
         self._drawNum(screen, game_font)
+        self._drawOutline(screen)
 
 
 class CatanBoard():
