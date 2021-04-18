@@ -21,7 +21,7 @@ class Gamestate:
         self.PlayerList = self.initializePlayerList(self.player)
         self.Round = 0
         self.Turn = 0
-        self.OhHiMarc = 0  # currentPlayer
+        self.OhHiMarc = self.setCurrentPlayer() # currentPlayer
 
     def inputCheck(self, type):
         try:
