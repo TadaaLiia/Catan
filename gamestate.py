@@ -11,15 +11,16 @@ class Gamestate:
         self.CountDevCards = 25
         self.ResourceCards = self.initializeResourceCards()
         self.Map = CatanMap()
-        self.Psuesch1 = Player(name1)  # Psuesch1
-        self.Psuesch2 = Player(name2)
-        self.Psuesch3 = Player(name3)
+        self.Psuesch1 = Player(name1)  # Player1
+        self.Psuesch2 = Player(name2)   # Player2
+        self.Psuesch3 = Player(name3)   # Player3
         self.player = 3
         if name4 != 0:
             self.Psuesch4 = Player(name4)
             self.player = 4
         self.PlayerList = self.initializePlayerList(self.player)
         self.Round = 0
+        self.Turn = 0
         self.OhHiMarc = 0  # currentPlayer
 
     def inputCheck(self, type):
@@ -68,6 +69,15 @@ class Gamestate:
     def getRound(self):
         return self.Round
 
+    def getTurn(self):
+        return self.Turn
+
+    def getPlayer(self):
+        return self.player
+
+    def getCurrentPlayer(self):
+        return self.OhHiMarc
+
     def getPlayerToName(self, name):
         if self.Psuesch1.getName() == name:
             return self.Psuesch1
@@ -79,6 +89,12 @@ class Gamestate:
             return self.Psuesch4
         else:
             print("no player")
+
+    # ---- setter ----
+    def setCurrentPlayer(self):
+        for player in self.getPlayerList():
+            if self.Turn == player.getPriority():
+                self.OhHiMarc = player
 
     # ---- Initialization ----
     def initializePlayerList(self, player):
@@ -124,40 +140,44 @@ class Gamestate:
     def incRound(self):
         self.Round += 1
 
+    def updateTurnPlayer(self):
+        self.Turn += 1
+        self.Turn = self.getTurn() % self.getPlayer()
+        if self.getTurn() == 0:
+            self.incRound()
+        self.setCurrentPlayer()
+
     def decCountDev(self):
         self.CountDevCards -= 1
 
     # ---- Development cards ----
-    def KNIGHTCARD(self, playerName):
-        print("position:")
-        position = self.inputCheck(int)
+    def KNIGHTCARD(self, playerName, position):
         self.Map.setBanditPosition(position)
+        self.getPlayerToName(playerName).updatePlayedKnightCards()
 
     def VICTORYPOINTCARD(self, playerName):
         self.getPlayerToName(playerName).updateVictoryPoints()
 
-    def CONSTRUCTION(self, playerName):
-        print("position1:")
-        position1 = self.inputCheck(tuple)
-        print("position2:")
-        position2 = self.inputCheck(tuple)
+    def CONSTRUCTION(self, playerName, position1, position2):
+        # print("position1:")
+        # position1 = self.inputCheck(tuple)
+        # print("position2:")
+        # position2 = self.inputCheck(tuple)
         self.Map.buildStuff(playerName, Objects.STREET, position1, self.getRound())
         self.Map.buildStuff(playerName, Objects.STREET, position2, self.getRound())
 
-    def MONOPOLY(self, playerName):
-        resourceCard = self.inputCheck(str)
-        sum = 0
-        for player in self.getPlayerList():
+    def MONOPOLY(self, playerName, resourceCard):
+        # resourceCard = self.inputCheck(str)
+        for sum, player in enumerate(self.getPlayerList()):
             i = player.getResourceCards()[resourceCard]
-            sum += i
             for j in range(i):
                 player.updateResourceCards(resourceCard, 0)
         for i in range(sum):
             self.getPlayerToName(playerName).updateResourceCards(resourceCard, 1)
 
-    def DEVELOPMENT(self, playerName):
-        resourceCard1 = self.inputCheck(str)
-        resourceCard2 = self.inputCheck(str)
+    def DEVELOPMENT(self, playerName, resourceCard1, resourceCard2):
+        # resourceCard1 = self.inputCheck(str)
+        # resourceCard2 = self.inputCheck(str)
         self.getPlayerToName(playerName).updateResourceCards(resourceCard1, 1)
         self.getPlayerToName(playerName).updateResourceCards(resourceCard2, 1)
 

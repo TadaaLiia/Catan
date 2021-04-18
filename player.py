@@ -21,6 +21,7 @@ class Player:
         self.ResourceCards = self.initializeResourceCards()
         self.DevelopmentCards = []
         self.VictoryPoints = 0
+        self.PlayedKnightCards = 0
 
     # ---- getter ----
     def getName(self):
@@ -40,6 +41,9 @@ class Player:
 
     def getVictoryPoints(self):
         return self.VictoryPoints
+
+    def getPlayedKnightCards(self):
+        return self.playedKnightCards
 
     # ---- setter ----
     def setName(self, name):
@@ -100,6 +104,9 @@ class Player:
             self.VictoryPoints += 1
             if self.getVictoryPoints() >= 10:
                 print(self.getName + "hat gewonnen!")
+
+    def updatePlayedKnightCards(self):
+        self.playedKnightCards += 1
 
     def check7(self):
         sum = 0

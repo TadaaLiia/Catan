@@ -19,6 +19,7 @@ class Simulation:
         return random.randrange(1, 7) + random.randrange(1, 7)
 
     def turn(self, playerName):
+        """
         for card in self.JarvisVision.getPlayerToName(playerName).getDevelopmentCards():
             if DevelopmentCards.KNIGHT_CARD == card[0]:
                 print("1: play knight card, 0: skip")
@@ -26,12 +27,14 @@ class Simulation:
                 if answer == 1:
                     self.playDevelopmentCard(playerName, DevelopmentCards.KNIGHT_CARD)
                 break
+        """
         r = self.roll()
         print("roll " + str(r))
         if r != 7:
             self.handOutCards(r)
         else:
             self.roll7(playerName)
+        '''
         # option1: devcard speilen
         # option2: traden
         # option3:bauen
@@ -50,10 +53,17 @@ class Simulation:
                 break
             else:
                 print("invalid input")
+        '''
 
-    def roll7(self, playerName):
-        print("bandit position")
-        position = self.inputCheck()
+    def endOfTurn(self):
+        '''
+        increments turn and round, updates CurrentPlayer
+        '''
+        self.JarvisVision.updateTurnPlayer()
+
+    def roll7(self, playerName, position):
+        # print("bandit position")
+        # position = self.inputCheck()
         self.bandit(position)
         villages = self.JarvisVision.Map.getVillagesToTile(position)
         cities = self.JarvisVision.Map.getCitiesToTile(position)
@@ -68,8 +78,8 @@ class Simulation:
     def getRound(self):
         return self.JarvisVision.getRound()
 
-    def incRound(self):
-        self.JarvisVision.incRound()
+    def getCurrentPlayer(self):
+        return self.JarvisVision.getCurrentPlayer()
 
     # ---- Interaction with CatanMap ----
     def getObjectList(self):
@@ -171,7 +181,9 @@ class Simulation:
         return self.JarvisVision.getPlayerToName(name)
 
     def getLegalMoves(self, playerName):
-        pass
+        # Developmentcards spielen
+        # 1x roll
+        
 
 
 if __name__ == "__main__":

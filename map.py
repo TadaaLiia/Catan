@@ -4,6 +4,7 @@ from entities import *
 
 class CatanMap:
     """
+    Representation and geeration of the board
     - BanditPosition: int, tileNumber
     - Adjacency: Matrix(36x36), adjacent tiles
     - AvailableNodes: List, availableNodes(x,y,z)
@@ -93,7 +94,7 @@ class CatanMap:
 
     def generateNodeList(self):
         '''
-        returns: available, valid nodes
+        returns: NodeList
         '''
         nodeList = []
 
@@ -311,8 +312,6 @@ class CatanMap:
         allVillages = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == Objects.VILLAGE]
         villages = []
         for v in allVillages:
-
-
             if v[1][0] == tile or v[1][1] == tile or v[1][2] == tile:
                 villages.append(v[0])
         return villages
