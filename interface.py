@@ -22,12 +22,43 @@ MIDPOINT = (400, 50)
 FONT_PATH = "data/RobotoMono-Regular.ttf"
 
 
+class Node():
+
+    def __init__(self):
+        self.state = 0  # 1 = village, 2 = city
+        self.position = list()
+
+    def __repr__(self):
+        return f"Position: {self.position}; State: {self.state}"
+
+    def updatePos(self, pos):
+        if len(self.position) + len(pos) <= 3:
+            self.position.extend(pos)
+
+    def getPos(self):
+        return self.position
+
+    def buildVillage(self):
+        if self.state == 0:
+            self.state = 1
+        else:
+            raise ValueError("Village or City already present")
+
+    def buildCity(self):
+        if self.state == 1:
+            self.state = 2
+        else:
+            raise ValueError("No village on this node")
+
+
 class Hex(pygame.sprite.Sprite):
-    def __init__(self, color, size=70, number=None, offset=(0, 0)):
+    def __init__(self, _id, color, size=70, number=None, offset=(0, 0)):
         super(Hex, self).__init__()
+        self.id = _id
         self.color = color
         self.size = size
         self.number = number
+        self.adjacentNodes = {}
         # Offset soll immer in relation zu einer Hex-Breite bzw Länge sein
         self.offset = (offset[0] * self.size, offset[1] * self.size)
 
@@ -61,6 +92,16 @@ class Hex(pygame.sprite.Sprite):
         number_rect.center = coordinates
         screen.blit(number, number_rect)
 
+    def _drawId(self, screen):
+        _font = pygame.freetype.Font(FONT_PATH, 12)
+        hex_MIDPOINT = (MIDPOINT[0] + (self.offset[0] *
+                        math.sqrt(3)), MIDPOINT[1] + (self.offset[1] * 2))
+        coordinates = (hex_MIDPOINT[0], hex_MIDPOINT[1] - self.size * .8)
+        number, number_rect = _font.render(
+            str(self.id), DARK_GRAY)
+        number_rect.center = coordinates
+        screen.blit(number, number_rect)
+
     def _drawHex(self, screen, points):
         pygame.draw.polygon(screen, self.color, points)
 
@@ -68,11 +109,27 @@ class Hex(pygame.sprite.Sprite):
         pygame.draw.lines(screen, DARK_GRAY, closed=True,
                           points=points, width=1)
 
+    def _indexNodes(self, hex_coordinates):
+        for node in hex_coordinates:
+            tmpNode = Node()
+            tmpNode.updatePos([self.id])
+            # floor coordinates because point calculation is not accurate enough to be used for comparison
+            key = tuple((math.floor(coord) for coord in node))
+            self.adjacentNodes[key] = tmpNode
+
+    def getNodes(self):
+        return self.adjacentNodes
+
+    def getNumber(self):
+        return self.number
+
     def draw(self, screen, game_font):
         hex_coordinates = self.calcHexCoordinates()
         self._drawHex(screen, hex_coordinates)
         self._drawNum(screen, game_font)
+        self._drawId(screen)
         self._drawOutline(screen, hex_coordinates)
+        self._indexNodes(hex_coordinates)
 
 
 class CatanBoard():
@@ -83,6 +140,7 @@ class CatanBoard():
         self.running = True
         self.game_font = pygame.freetype.Font(FONT_PATH, 24)
         self.hexes = []
+        self.nodes = {}
         catanMap = map.CatanMap()
         self.generateBoard(catanMap.generateMap())
         self.gameloop()
@@ -106,6 +164,21 @@ class CatanBoard():
                 result.append((base_offset[0] + column, base_offset[1]))
         return result
 
+    def _updateNodes(self, nodeDict):
+        for key in nodeDict.keys():
+            if key in self.nodes.keys():
+                self.nodes[key].updatePos(nodeDict[key].getPos())
+            else:
+                self.nodes[key] = nodeDict[key]
+
+    def _cleanNodes(self):
+        newNodes = {}
+        for key in self.nodes.keys():
+            pos = tuple(sorted(self.nodes[key].getPos()))
+            if len(pos) == 3:
+                newNodes[pos] = self.nodes[key]
+        self.nodes = newNodes
+
     def generateBoard(self, TileList):
         offsets = self.buildGrid()
         mapping = {
@@ -118,9 +191,12 @@ class CatanBoard():
             Tiles.OCEAN: BLUE
         }
         for i, Tile in enumerate(TileList):
-            newHex = Hex(mapping[Tile[0]], number=Tile[1], offset=offsets[i])
+            newHex = Hex(i, mapping[Tile[0]],
+                         number=Tile[1], offset=offsets[i])
             newHex.draw(self.screen, self.game_font)
             self.hexes.append(newHex)
+            self._updateNodes(newHex.getNodes())
+        self._cleanNodes()
 
     def gameloop(self):
         while self.running:
