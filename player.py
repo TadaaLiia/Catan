@@ -11,7 +11,7 @@ class Player:
 
     - updateAvailableObjects: +/- Object
     - updateResourceCard: +/- Card
-    - pdateDevelopmentCards: +/- Card
+    - updateDevelopmentCards: +/- Card
     """
 
     def __init__(self, name):
@@ -76,8 +76,6 @@ class Player:
             self.AvailableObjects[object] -= 1
 
     def updateResourceCards(self, card, flag=0):
-        assert card in self.ResourceCards, "invalid card"
-
         if flag == 1:
             self.ResourceCards[card] += 1
         else:
@@ -149,4 +147,5 @@ class Player:
 
 
 if __name__ == "__main__":
-    jakob = Player()
+    jakob = Player("jakob")
+    print(jakob.getResourceCards())

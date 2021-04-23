@@ -349,6 +349,7 @@ if __name__ == "__main__":
     cmap.buildStuff("maxspdcbr", Objects.STREET, (13, 19), 0)
     cmap.buildStuff("maxspdcbr", Objects.STREET, (23, 24), 0)
     print(cmap.getAvailableStreets("jamoinmoritz"))
+    print(cmap.getTilesToValue(8))
     # print(cmap.getTileList())
     # cmap.setBanditPosition(10)
     # for i in range(2, 13):

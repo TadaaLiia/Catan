@@ -1,22 +1,44 @@
 import enum
 
 
-class Tiles(enum.Enum):
-    WOOD = 1
-    CLAY = 2
-    SHEEP = 3
-    WHEAT = 4
-    ORE = 5
-    DESERT = 6
-    OCEAN = 7
-
-
 class Resources(enum.Enum):
     WOOD = 1
     CLAY = 2
     SHEEP = 3
     WHEAT = 4
     ORE = 5
+
+    def __eq__(self, other):
+        if isinstance(other, Resources):
+            return self is other
+        elif isinstance(other, Ports) or isinstance(other, Tiles):
+            return self.value == other.value
+        else:
+            return False
+
+    def __hash__(self):
+        return self.value
+
+
+class Tiles(enum.Enum):
+    WOOD = Resources.WOOD.value
+    CLAY = Resources.CLAY.value
+    SHEEP = Resources.SHEEP.value
+    WHEAT = Resources.WHEAT.value
+    ORE = Resources.ORE.value
+    DESERT = 6
+    OCEAN = 7
+
+    def __eq__(self, other):
+        if isinstance(other, Tiles):
+            return self is other
+        elif isinstance(other, Resources):
+            return self.value == other.value
+        else:
+            return False
+
+    def __hash__(self):
+        return self.value
 
 
 class Ports(enum.Enum):
@@ -27,6 +49,17 @@ class Ports(enum.Enum):
     WHEAT = Resources.WHEAT.value
     ORE = Resources.ORE.value
     PORT = 6
+
+    def __eq__(self, other):
+        if isinstance(other, Ports):
+            return self is other
+        elif isinstance(other, Resources):
+            return self.value == other.value
+        else:
+            return False
+
+    def __hash__(self):
+        return self.value
 
 
 class DevelopmentCards(enum.Enum):

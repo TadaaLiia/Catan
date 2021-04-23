@@ -35,7 +35,12 @@ class Simulation:
         return i
 
     def roll(self):
-        return random.randrange(1, 7) + random.randrange(1, 7)
+        r = random.randrange(1, 7) + random.randrange(1, 7)
+        if r != 7:
+            self.handOutCards(r)
+        else:
+            self.roll7(self.getCurrentPlayer())
+        self.JarvisVision.setDiced(1)
 
     def turn(self, playerName):
         """
@@ -47,12 +52,6 @@ class Simulation:
                     self.playDevelopmentCard(playerName, DevelopmentCards.KNIGHT_CARD)
                 break
         """
-        r = self.roll()
-        print("roll " + str(r))
-        if r != 7:
-            self.handOutCards(r)
-        else:
-            self.roll7(playerName)
         '''
         while True:
             print("1: DevCard, 2: Trade, 3: Build, 4: exit")
@@ -75,8 +74,10 @@ class Simulation:
         increments turn and round, updates CurrentPlayer
         '''
         self.JarvisVision.updateTurnPlayer()
+        self.JarvisVision.setPlayedDev(0)
+        self.JarvisVision.setDiced(0)
 
-    def roll7(self, position):
+    def roll7(self, position=0):
         # print("bandit position")
         # position = self.inputCheck()
         self.bandit(position)
@@ -175,10 +176,14 @@ class Simulation:
                         self.giveResourceCards(player.getName(), tile[1], 2)
 
     def drawDevelopmentCard(self):
+        playerName = self.getCurrentPlayer().getName()
         assert self.getCurrentPlayer().getResourceCards()[Resources.SHEEP] != 0, "missing sheep"
         assert self.getCurrentPlayer().getResourceCards()[Resources.ORE] != 0, "missing ore"
         assert self.getCurrentPlayer().getResourceCards()[Resources.WHEAT] != 0, "missing wheat"
         card = self.JarvisVision.getRandomDevCard()
+        self.removeResourceCards(playerName, Resources.SHEEP)
+        self.removeResourceCards(playerName, Resources.ORE)
+        self.removeResourceCards(playerName, Resources.WHEAT)
         self.JarvisVision.getCurrentPlayer().updateDevelopmentCards(card, self.getRound())
 
     def playDevelopmentCard(self, devCard):
@@ -199,46 +204,68 @@ class Simulation:
     def getPlayerToName(self, name):
         return self.JarvisVision.getPlayerToName(name)
 
+    # ---- interaction with Bot ----
+
     def getLegalMoves(self):
+        legalMoves = []
         player = self.getCurrentPlayer()
-        # Developmentcards spielen
+
         devCards = []
-        for card in player.getDevelopmentCards():
-            if card[1] != self.getRound():
-                devCards.append(card[0])
-        print(devCards)
-        # 1x roll
-        # build
-        streets = []
-        if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0:
-            streets = self.getAvailableStreetPositions()
-        villages = []
-        if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0 and player.getResourceCards()[Resources.SHEEP] != 0 and player.getResourceCards()[Resources.WHEAT] != 0:
-            villages = self.getAvailableVillagePositions()
-        cities = []
-        if player.getResourceCards()[Resources.ORE] >= 3 and player.getResourceCards()[Resources.WHEAT] >= 2:
-            cities = self.getAvailableCityPositions()
-        # draw dev
-        drawDev = 0
-        if player.getResourceCards()[Resources.ORE] != 0 and player.getResourceCards()[Resources.WHEAT] != 0 and player.getResourceCards()[Resources.SHEEP] != 0:
-            drawDev = 1
+        if self.JarvisVision.getPlayedDev() == 0:
+            for card in player.getDevelopmentCards():
+                if card[1] != self.getRound():
+                    devCards.append(card[0])
+
+        legalMoves.extend(["playDevCard(" + str(card) + ")" for card in devCards if (card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.getDiced() != 0)])
+
+        if self.JarvisVision.getDiced() == 0:
+            legalMoves.append("roll")
+        else:
+            # build
+            if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0:
+                streets = self.getAvailableStreetPositions()
+                for street in streets:
+                    legalMoves.append("buildObject(Objects.STREET, " + str(street) + ")")
+
+            if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0 and player.getResourceCards()[Resources.SHEEP] != 0 and player.getResourceCards()[Resources.WHEAT] != 0:
+                villages = self.getAvailableVillagePositions()
+                for village in villages:
+                    legalMoves.append("buildObject(Objects.VILLAGE, " + str(village) + ")")
+
+            if player.getResourceCards()[Resources.ORE] >= 3 and player.getResourceCards()[Resources.WHEAT] >= 2:
+                cities = self.getAvailableCityPositions()
+                for city in cities:
+                    legalMoves.append("buildObject(Objects.CITY, " + str(city) + ")")
+            # draw dev
+            if player.getResourceCards()[Resources.ORE] != 0 and player.getResourceCards()[Resources.WHEAT] != 0 and player.getResourceCards()[Resources.SHEEP] != 0:
+                legalMoves.append("drawDevelopmentCard()")
+            # trade
+        return legalMoves
 
 
 if __name__ == "__main__":
     gs = Gamestate("maxspdcbr", "jamoinmoritz", "edgar")
     sim = Simulation(gs)
+
     sim.load("gs1")
 
     print("Round:" + str(sim.getRound()))
     sim.drawDevelopmentCard()
     sim.drawDevelopmentCard()
-    sim.getLegalMoves()
-    sim.endOfTurn()
+    print(sim.getLegalMoves())
 
     sim.endOfTurn()
-
+    sim.JarvisVision.getPortsToPlayer(sim.getCurrentPlayer().getName())
     sim.endOfTurn()
-    sim.getLegalMoves()
+    sim.JarvisVision.getPortsToPlayer(sim.getCurrentPlayer().getName())
+    sim.endOfTurn()
+    sim.JarvisVision.getPortsToPlayer(sim.getCurrentPlayer().getName())
+    print(sim.getLegalMoves())
+    sim.roll()
+    print(sim.getLegalMoves())
+    sim.endOfTurn()
+    print(sim.getLegalMoves())
+
 
 
 '''
@@ -268,4 +295,10 @@ Code zu GS1:
     sim.buildObject(Objects.STREET, (30, 34))
     sim.endOfTurn()
     sim.save("gs1")
+    print(sim.JarvisVision.Diced)
 '''
+
+"""
+
+
+"""

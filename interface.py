@@ -28,9 +28,6 @@ class Node():
         self.state = 0  # 1 = village, 2 = city
         self.position = list()
 
-    def __repr__(self):
-        return f"Position: {self.position}; State: {self.state}"
-
     def updatePos(self, pos):
         if len(self.position) + len(pos) <= 3:
             self.position.extend(pos)

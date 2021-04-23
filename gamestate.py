@@ -21,7 +21,9 @@ class Gamestate:
         self.PlayerList = self.initializePlayerList(self.player)
         self.Round = 0
         self.Turn = 0
-        self.OhHiMarc = self.setCurrentPlayer() # currentPlayer
+        self.OhHiMarc = self.setCurrentPlayer()  # currentPlayer
+        self.PlayedDev = 0
+        self.Diced = 0
 
     def inputCheck(self, type):
         try:
@@ -90,11 +92,23 @@ class Gamestate:
         else:
             print("no player")
 
+    def getDiced(self):
+        return self.Diced
+
+    def getPlayedDev(self):
+        return self.PlayedDev
+
     # ---- setter ----
     def setCurrentPlayer(self):
         for player in self.getPlayerList():
             if self.Turn == player.getPriority():
                 self.OhHiMarc = player
+
+    def setDiced(self, i):
+        self.Diced = i
+
+    def setPlayedDev(self, i):
+        self.PlayedDev = i
 
     # ---- Initialization ----
     def initializePlayerList(self, player):
@@ -159,15 +173,10 @@ class Gamestate:
         self.getPlayerToName(playerName).updateVictoryPoints()
 
     def CONSTRUCTION(self, playerName, position1, position2):
-        # print("position1:")
-        # position1 = self.inputCheck(tuple)
-        # print("position2:")
-        # position2 = self.inputCheck(tuple)
         self.Map.buildStuff(playerName, Objects.STREET, position1, self.getRound())
         self.Map.buildStuff(playerName, Objects.STREET, position2, self.getRound())
 
     def MONOPOLY(self, playerName, resourceCard):
-        # resourceCard = self.inputCheck(str)
         for sum, player in enumerate(self.getPlayerList()):
             i = player.getResourceCards()[resourceCard]
             for j in range(i):
@@ -176,12 +185,20 @@ class Gamestate:
             self.getPlayerToName(playerName).updateResourceCards(resourceCard, 1)
 
     def DEVELOPMENT(self, playerName, resourceCard1, resourceCard2):
-        # resourceCard1 = self.inputCheck(str)
-        # resourceCard2 = self.inputCheck(str)
         self.getPlayerToName(playerName).updateResourceCards(resourceCard1, 1)
         self.getPlayerToName(playerName).updateResourceCards(resourceCard2, 1)
 
     # ---- trade ----
+    def getPortsToPlayer(self, playerName):
+        # not working
+        availablePorts = []
+        objects, buildings, streets = self.Map.getPlayerShit(playerName)
+        for port in list(Ports):
+            nodes = self.Map.getPortDict()[port.name]
+            if any(building in nodes for building in buildings) is True:
+                availablePorts.append(port)
+        print(availablePorts)
+
     def trade(self, playerName, port):
         objects, buildings, streets = self.Map.getPlayerShit(playerName)
         print("gewünschte Ressource: " + ", ".join([str(x.name) + ":" + str(x.value) for x in Resources]))
