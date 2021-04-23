@@ -1,13 +1,32 @@
 from gamestate import Gamestate
 import random
 from entities import *
+import pickle
+
 
 class Simulation:
 
     def __init__(self, gamestate, player=4):
         self.JarvisVision = gamestate
 
+    def save(self, filename):
+        # create a pickle file
+        picklefile = open(filename, 'wb')
+        # pickle the dictionary and write it to file
+        pickle.dump(self.JarvisVision, picklefile)
+        # close the file
+        picklefile.close()
+
+    def load(self, filename):
+        # read the pickle file
+        picklefile = open(filename, 'rb')
+        # unpickle the dataframe
+        self.JarvisVision = pickle.load(picklefile)
+        # close file
+        picklefile.close()
+
     # ---- turn ----
+
     def inputCheck(self):
         try:
             i = int(input("> "))
@@ -20,11 +39,7 @@ class Simulation:
 
     def turn(self, playerName):
         """
-        for card in self.JarvisVdef giveResourceCards(self, playerName, card, count=1):
-        for i in range(count):
-            self.JarvisVision.getPlayerToName(playerName).updateResourceCards(card, 1)
-
-    def removeResourceCards(self, ision.getPlayerToName(playerName).getDevelopmentCards():
+        for card in self.JarvisVision.getPlayerToName(playerName).getDevelopmentCards():
             if DevelopmentCards.KNIGHT_CARD == card[0]:
                 print("1: play knight card, 0: skip")
                 answer = self.inputCheck()
@@ -39,10 +54,6 @@ class Simulation:
         else:
             self.roll7(playerName)
         '''
-        # option1: devcard speilen
-        # option2: traden
-        # option3:bauen
-        # option4: exit
         while True:
             print("1: DevCard, 2: Trade, 3: Build, 4: exit")
             option = input("> ")
@@ -170,8 +181,9 @@ class Simulation:
         card = self.JarvisVision.getRandomDevCard()
         self.JarvisVision.getCurrentPlayer().updateDevelopmentCards(card, self.getRound())
 
-    def playDevelopmentCard(self, playerName, devCard):
-        r = self.getPlayerToName(playerName).updateDevelopmentCards(devCard, self.getRound(), 1)
+    def playDevelopmentCard(self, devCard):
+        playerName = self.getCurrentPlayer().getName()
+        r = self.getCurrentPlayer().updateDevelopmentCards(devCard, self.getRound(), 1)
         if r == 1:
             if devCard == DevelopmentCards.KNIGHT_CARD:
                 self.JarvisVision.KNIGHTCARD(playerName)
@@ -194,6 +206,7 @@ class Simulation:
         for card in player.getDevelopmentCards():
             if card[1] != self.getRound():
                 devCards.append(card[0])
+        print(devCards)
         # 1x roll
         # build
         streets = []
@@ -210,11 +223,26 @@ class Simulation:
         if player.getResourceCards()[Resources.ORE] != 0 and player.getResourceCards()[Resources.WHEAT] != 0 and player.getResourceCards()[Resources.SHEEP] != 0:
             drawDev = 1
 
-        
 
 if __name__ == "__main__":
     gs = Gamestate("maxspdcbr", "jamoinmoritz", "edgar")
     sim = Simulation(gs)
+    sim.load("gs1")
+
+    print("Round:" + str(sim.getRound()))
+    sim.drawDevelopmentCard()
+    sim.drawDevelopmentCard()
+    sim.getLegalMoves()
+    sim.endOfTurn()
+
+    sim.endOfTurn()
+
+    sim.endOfTurn()
+    sim.getLegalMoves()
+
+
+'''
+Code zu GS1:
     sim.priorityRoll(3)
     # round 0
     res = [(Resources.WOOD, 10), (Resources.CLAY, 10), (Resources.WHEAT, 10), (Resources.SHEEP, 10), (Resources.ORE, 10)]
@@ -239,19 +267,5 @@ if __name__ == "__main__":
     sim.buildObject(Objects.STREET, (29, 33))
     sim.buildObject(Objects.STREET, (30, 34))
     sim.endOfTurn()
-    print("Round:" + str(sim.getRound()))
-    sim.drawDevelopmentCard()
-    sim.drawDevelopmentCard()
-    sim.getLegalMoves()
-    sim.endOfTurn()
-
-    sim.endOfTurn()
-
-    sim.endOfTurn()
-    sim.getLegalMoves()
-    # print(sim.JarvisVision.getPlayerToName("edgar").getResourceCards())
-    # sim.JarvisVision.trade("edgar", Ports.CLAY)
-    # print(sim.JarvisVision.getPlayerToName("edgar").getResourceCards())
-# liste der moves
-# naechster JarvisVision nach move
-# simulate random game: 1 gewonnen
+    sim.save("gs1")
+'''

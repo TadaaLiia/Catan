@@ -94,7 +94,7 @@ class CatanMap:
 
     def generateNodeList(self):
         '''
-        returns: NodeList
+        returns: List of valid nodes
         '''
         nodeList = []
 
@@ -136,6 +136,9 @@ class CatanMap:
         return sorted(nodeList)
 
     def generateMap(self, seed=None):
+        """
+        returns TileList: TileType and Number
+        """
         AVAILABLE_TILES = {
             Tiles.WHEAT: 4,
             Tiles.ORE: 3,
@@ -198,6 +201,9 @@ class CatanMap:
         return tileList
 
     def initializePortDict(self):
+        """
+        returns PortDict
+        """
         portDict = {
             Ports.PORT: [(0, 1, 5), (0, 4, 5), (7, 8, 13), (8, 13, 14), (14, 20, 21), (20, 21, 27), (28, 29, 33), (29, 33, 34)],
             Ports.SHEEP: [(1, 2, 6), (2, 6, 7)],
@@ -210,6 +216,9 @@ class CatanMap:
 
     # ---- Objects
     def updateAvailableNodes(self, position):
+        """
+        updates available nodes depending on input position, deletes up to 3 adjacent nodes to position
+        """
         # sorted position
         pos = tuple(sorted(position))
         # valid position?
@@ -227,6 +236,9 @@ class CatanMap:
         self.AvailableNodes = nodes
 
     def getPlayerShit(self, player):
+        """
+        returns objects of player
+        """
         objects = [x for x in self.getObjectList() if x["player"] == player]
         buildings = [x["position"] for x in objects if x["type"] != Objects.STREET]
         streets = [x["position"] for x in objects if x["type"] == Objects.STREET]
