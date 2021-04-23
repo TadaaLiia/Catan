@@ -24,17 +24,16 @@ FONT_PATH = "data/RobotoMono-Regular.ttf"
 
 class Node():
 
-    state = 0  # 1 = village, 2 = city
-    position = set()
-
     def __init__(self):
-        pass
+        self.state = 0  # 1 = village, 2 = city
+        self.position = list()
+
+    def __repr__(self):
+        return f"Position: {self.position}; State: {self.state}"
 
     def updatePos(self, pos):
-        # print("Old pos:", self.position)
         if len(self.position) + len(pos) <= 3:
-            self.position.update(pos)
-        # print("new Pos:", self.position)
+            self.position.extend(pos)
 
     def getPos(self):
         return self.position
@@ -53,8 +52,9 @@ class Node():
 
 
 class Hex(pygame.sprite.Sprite):
-    def __init__(self, color, size=70, number=None, offset=(0, 0)):
+    def __init__(self, _id, color, size=70, number=None, offset=(0, 0)):
         super(Hex, self).__init__()
+        self.id = _id
         self.color = color
         self.size = size
         self.number = number
@@ -92,6 +92,16 @@ class Hex(pygame.sprite.Sprite):
         number_rect.center = coordinates
         screen.blit(number, number_rect)
 
+    def _drawId(self, screen):
+        _font = pygame.freetype.Font(FONT_PATH, 12)
+        hex_MIDPOINT = (MIDPOINT[0] + (self.offset[0] *
+                        math.sqrt(3)), MIDPOINT[1] + (self.offset[1] * 2))
+        coordinates = (hex_MIDPOINT[0], hex_MIDPOINT[1] - self.size * .8)
+        number, number_rect = _font.render(
+            str(self.id), DARK_GRAY)
+        number_rect.center = coordinates
+        screen.blit(number, number_rect)
+
     def _drawHex(self, screen, points):
         pygame.draw.polygon(screen, self.color, points)
 
@@ -102,8 +112,10 @@ class Hex(pygame.sprite.Sprite):
     def _indexNodes(self, hex_coordinates):
         for node in hex_coordinates:
             tmpNode = Node()
-            tmpNode.updatePos([self.number])
-            self.adjacentNodes[node] = tmpNode
+            tmpNode.updatePos([self.id])
+            # floor coordinates because point calculation is not accurate enough to be used for comparison
+            key = tuple((math.floor(coord) for coord in node))
+            self.adjacentNodes[key] = tmpNode
 
     def getNodes(self):
         return self.adjacentNodes
@@ -115,6 +127,7 @@ class Hex(pygame.sprite.Sprite):
         hex_coordinates = self.calcHexCoordinates()
         self._drawHex(screen, hex_coordinates)
         self._drawNum(screen, game_font)
+        self._drawId(screen)
         self._drawOutline(screen, hex_coordinates)
         self._indexNodes(hex_coordinates)
 
@@ -152,17 +165,13 @@ class CatanBoard():
         return result
 
     def _updateNodes(self, nodeDict):
-        # [print(node) for node in nodeDict]
-        # print("-----------")
         for key in nodeDict.keys():
             if key in self.nodes.keys():
                 self.nodes[key].updatePos(nodeDict[key].getPos())
             else:
                 self.nodes[key] = nodeDict[key]
-        # [print(node, self.nodes[node].getPos()) for node in self.nodes]
 
     def _cleanNodes(self):
-        # [print(node, self.nodes[node].getPos()) for node in self.nodes]
         newNodes = {}
         for key in self.nodes.keys():
             pos = tuple(sorted(self.nodes[key].getPos()))
@@ -182,15 +191,14 @@ class CatanBoard():
             Tiles.OCEAN: BLUE
         }
         for i, Tile in enumerate(TileList):
-            newHex = Hex(mapping[Tile[0]], number=Tile[1], offset=offsets[i])
+            newHex = Hex(i, mapping[Tile[0]],
+                         number=Tile[1], offset=offsets[i])
             newHex.draw(self.screen, self.game_font)
             self.hexes.append(newHex)
-            # print(newHex.getNumber())
             self._updateNodes(newHex.getNodes())
         self._cleanNodes()
 
     def gameloop(self):
-        # [print(node) for node in self.nodes]
         while self.running:
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
