@@ -22,11 +22,14 @@ MIDPOINT = (400, 50)
 FONT_PATH = "data/RobotoMono-Regular.ttf"
 
 
-class Node():
+class Node(pygame.sprite.Sprite):
 
     def __init__(self):
         self.state = 0  # 1 = village, 2 = city
         self.position = list()
+        self.coords = (0, 0)
+        self.villageImg = pygame.image.load('textures/villageblue.png')
+        self.cityImg = pygame.image.load('textures/cityblue.png')
 
     def updatePos(self, pos):
         if len(self.position) + len(pos) <= 3:
@@ -35,15 +38,27 @@ class Node():
     def getPos(self):
         return self.position
 
-    def buildVillage(self):
+    def setCoords(self, coords):
+        if type(coords) == tuple:
+            self.coords = coords
+
+    def buildVillage(self, screen):
         if self.state == 0:
             self.state = 1
+            imgSize = self.villageImg.get_rect().size
+            imgCoords = (self.coords[0] - imgSize[0]/2,
+                         self.coords[1] - imgSize[1])
+            screen.blit(self.villageImg, imgCoords)
         else:
             raise ValueError("Village or City already present")
 
-    def buildCity(self):
+    def buildCity(self, screen):
         if self.state == 1:
             self.state = 2
+            imgSize = self.cityImg.get_rect().size
+            imgCoords = (self.coords[0] - imgSize[0]/2,
+                         self.coords[1] - imgSize[1])
+            screen.blit(self.cityImg, imgCoords)
         else:
             raise ValueError("No village on this node")
 
@@ -110,6 +125,7 @@ class Hex(pygame.sprite.Sprite):
         for node in hex_coordinates:
             tmpNode = Node()
             tmpNode.updatePos([self.id])
+            tmpNode.setCoords(node)
             # floor coordinates because point calculation is not accurate enough to be used for comparison
             key = tuple((math.floor(coord) for coord in node))
             self.adjacentNodes[key] = tmpNode
@@ -204,6 +220,10 @@ class CatanBoard():
                         pass
                     elif event.key == K_RIGHT:
                         # show next step
+                        firstNode = list(self.nodes.keys())[0]
+                        print(firstNode)
+                        self.nodes[firstNode].buildVillage(
+                            self.screen)
                         pass
                     elif event.key == K_LEFT:
                         # show previous step
