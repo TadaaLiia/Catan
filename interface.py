@@ -144,6 +144,9 @@ class Hex(pygame.sprite.Sprite):
         self._drawOutline(screen, hex_coordinates)
         self._indexNodes(hex_coordinates)
 
+    def getColorToName(self, playerName):
+        pass
+
 
 class CatanBoard():
 

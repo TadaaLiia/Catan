@@ -52,9 +52,7 @@ class CatanMap:
         '''
         returns: Matrix(36x36), adjacent tiles
         '''
-        x = []
-        for i in range(37):
-            x.append([0 for jakob in range(37)])
+        x = [[0] * 37] * 37
 
         TILES_1 = [5, 6, 7]
         for tile in TILES_1:

@@ -74,3 +74,10 @@ class Objects(enum.Enum):
     STREET = 1
     VILLAGE = 2
     CITY = 3
+
+
+class Color(enum.Enum):
+    ORANGE = 1
+    BLUE = 2
+    WHITE = 3
+    RED = 4
