@@ -309,7 +309,7 @@ class CatanMap:
             return
 
     # ---- Tiles
-    def getTilesToValue(self, value):
+    def getTilesForValue(self, value):
         tiles = []
         i = 0
         for tile in self.getTileList():
@@ -318,7 +318,7 @@ class CatanMap:
             i += 1
         return(tiles)
 
-    def getVillagesToTile(self, tile):
+    def getVillagesForTile(self, tile):
         allVillages = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == Objects.VILLAGE]
         villages = []
         for v in allVillages:
@@ -326,7 +326,7 @@ class CatanMap:
                 villages.append(v[0])
         return villages
 
-    def getCitiesToTile(self, tile):
+    def getCitiesForTile(self, tile):
         allCities = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == Objects.CITY]
         cities = []
         for c in allCities:
@@ -346,10 +346,3 @@ if __name__ == "__main__":
     cmap.buildStuff("maxspdcbr", Objects.VILLAGE, (12, 13, 19), 0)
     cmap.buildStuff("maxspdcbr", Objects.STREET, (13, 19), 0)
     cmap.buildStuff("maxspdcbr", Objects.STREET, (23, 24), 0)
-    print(cmap.getAvailableStreets("jamoinmoritz"))
-    print(cmap.getTilesToValue(8))
-    # print(cmap.getTileList())
-    # cmap.setBanditPosition(10)
-    # for i in range(2, 13):
-    #     print(i)
-    #     print(cmap.getTilesToValue(i))

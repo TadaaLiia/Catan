@@ -76,8 +76,8 @@ class Objects(enum.Enum):
     CITY = 3
 
 
-class Color(enum.Enum):
-    ORANGE = 1
-    BLUE = 2
-    WHITE = 3
-    RED = 4
+class PlayerColor(enum.Enum):
+    ORANGE = 0
+    BLUE = 1
+    WHITE = 2
+    RED = 3

@@ -1,4 +1,3 @@
-from gamestate import Gamestate
 import random
 from entities import *
 import pickle
@@ -8,7 +7,6 @@ class Simulation:
 
     def __init__(self, gamestate, player=4):
         self.JarvisVision = gamestate
-        self.methods = self.initializeMethodMapping()
 
     def save(self, filename):
         # create a pickle file
@@ -43,33 +41,6 @@ class Simulation:
             self.roll7(self.getCurrentPlayer())
         self.JarvisVision.setDiced(1)
 
-    def turn(self, playerName):
-        """
-        for card in self.JarvisVision.getPlayerToName(playerName).getDevelopmentCards():
-            if DevelopmentCards.KNIGHT_CARD == card[0]:
-                print("1: play knight card, 0: skip")
-                answer = self.inputCheck()
-                if answer == 1:
-                    self.playDevelopmentCard(playerName, DevelopmentCards.KNIGHT_CARD)
-                break
-        """
-        '''
-        while True:
-            print("1: DevCard, 2: Trade, 3: Build, 4: exit")
-            option = input("> ")
-            if option == str(1):
-                card = self.getPlayerToName(playerName).chooseDevCard()
-                self.playDevelopmentCard(playerName, card)
-            elif option == str(2):
-                pass
-            elif option == str(3):
-                pass
-            elif option == str(4):
-                break
-            else:
-                print("invalid input")
-        '''
-
     def endOfTurn(self):
         '''
         increments turn and round, updates CurrentPlayer
@@ -82,8 +53,8 @@ class Simulation:
         # print("bandit position")
         # position = self.inputCheck()
         self.bandit(position)
-        villages = self.JarvisVision.Map.getVillagesToTile(position)
-        cities = self.JarvisVision.Map.getCitiesToTile(position)
+        villages = self.JarvisVision.Map.getVillagesForTile(position)
+        cities = self.JarvisVision.Map.getCitiesForTile(position)
         players = list(dict.fromkeys(villages + cities))
         for player in players:
             card = player.getRandomResourceCard()
@@ -156,18 +127,18 @@ class Simulation:
 
     def giveResourceCards(self, playerName, card, count=1):
         for i in range(count):
-            self.JarvisVision.getPlayerToName(playerName).updateResourceCards(card, 1)
+            self.JarvisVision.getPlayerForName(playerName).updateResourceCards(card, 1)
 
     def removeResourceCards(self, playerName, card, count=1):
         for i in range(count):
-            self.JarvisVision.getPlayerToName(playerName).updateResourceCards(card, 0)
+            self.JarvisVision.getPlayerForName(playerName).updateResourceCards(card, 0)
 
     def handOutCards(self, roll):
-        tiles = self.JarvisVision.Map.getTilesToValue(roll)
+        tiles = self.JarvisVision.Map.getTilesForValue(roll)
         players = self.JarvisVision.getPlayerList()
         for tile in tiles:
-            villages = self.JarvisVision.Map.getVillagesToTile(tile[0])
-            cities = self.JarvisVision.Map.getCitiesToTile(tile[0])
+            villages = self.JarvisVision.Map.getVillagesForTile(tile[0])
+            cities = self.JarvisVision.Map.getCitiesForTile(tile[0])
             for player in players:
                 for v in villages:
                     if v == player.getName():
@@ -202,21 +173,18 @@ class Simulation:
             elif devCard == DevelopmentCards.CONSTRUCTION:
                 self.JarvisVision.CONSTRUCTION(playerName)
 
-    def getPlayerToName(self, name):
-        return self.JarvisVision.getPlayerToName(name)
+    def getPlayerForName(self, name):
+        return self.JarvisVision.getPlayerForName(name)
 
     # ---- interaction with Bot ----
 
-    def initializeMethodMapping(self):
+    def getLegalMoves(self):
         methods = {
             "playDevCard": self.playDevelopmentCard,
             "roll": self.roll,
             "buildObject": self.buildObject,
             "drawDevCard": self.drawDevelopmentCard
         }
-        return methods
-
-    def getLegalMoves(self):
         legalMoves = []
         player = self.getCurrentPlayer()
 
@@ -226,29 +194,29 @@ class Simulation:
                 if card[1] != self.getRound():
                     devCards.append(card[0])
 
-        legalMoves.extend([(self.methods["playDevCard"], card) for card in devCards if (card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.getDiced() != 0)])
+        legalMoves.extend([(methods["playDevCard"], card) for card in devCards if (card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.getDiced() != 0)])
 
         if self.JarvisVision.getDiced() == 0:
-            legalMoves.append((self.methods["roll"], None))
+            legalMoves.append((methods["roll"], None))
         else:
             # build
             if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0:
                 streets = self.getAvailableStreetPositions()
                 for street in streets:
-                    legalMoves.append((self.methods["buildObject"], street))
+                    legalMoves.append((methods["buildObject"], street))
 
             if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0 and player.getResourceCards()[Resources.SHEEP] != 0 and player.getResourceCards()[Resources.WHEAT] != 0:
                 villages = self.getAvailableVillagePositions()
                 for village in villages:
-                    legalMoves.append((self.methods["buildObject"], village))
+                    legalMoves.append((methods["buildObject"], village))
 
             if player.getResourceCards()[Resources.ORE] >= 3 and player.getResourceCards()[Resources.WHEAT] >= 2:
                 cities = self.getAvailableCityPositions()
                 for city in cities:
-                    legalMoves.append((self.methods["buildObject"], city))
+                    legalMoves.append((methods["buildObject"], city))
             # draw dev
             if player.getResourceCards()[Resources.ORE] != 0 and player.getResourceCards()[Resources.WHEAT] != 0 and player.getResourceCards()[Resources.SHEEP] != 0:
-                legalMoves.append((self.methods["drawDevCard"], None))
+                legalMoves.append((methods["drawDevCard"], None))
             # trade
         return legalMoves
 
@@ -265,17 +233,16 @@ if __name__ == "__main__":
     print(sim.getLegalMoves())
 
     sim.endOfTurn()
-    # sim.JarvisVision.getPortsToPlayer(sim.getCurrentPlayer().getName())
+    # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
     sim.endOfTurn()
-    # sim.JarvisVision.getPortsToPlayer(sim.getCurrentPlayer().getName())
+    # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
     sim.endOfTurn()
-    # sim.JarvisVision.getPortsToPlayer(sim.getCurrentPlayer().getName())
+    # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
     print(sim.getLegalMoves())
     sim.roll()
     print(sim.getLegalMoves())
     sim.endOfTurn()
     print(sim.getLegalMoves())
-
 
 
 '''

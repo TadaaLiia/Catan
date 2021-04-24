@@ -80,7 +80,7 @@ class Gamestate:
     def getCurrentPlayer(self):
         return self.OhHiMarc
 
-    def getPlayerToName(self, name):
+    def getPlayerForName(self, name):
         if self.Psuesch1.getName() == name:
             return self.Psuesch1
         elif self.Psuesch2.getName() == name:
@@ -167,10 +167,10 @@ class Gamestate:
     # ---- Development cards ----
     def KNIGHTCARD(self, playerName, position):
         self.Map.setBanditPosition(position)
-        self.getPlayerToName(playerName).updatePlayedKnightCards()
+        self.getPlayerForName(playerName).updatePlayedKnightCards()
 
     def VICTORYPOINTCARD(self, playerName):
-        self.getPlayerToName(playerName).updateVictoryPoints()
+        self.getPlayerForName(playerName).updateVictoryPoints()
 
     def CONSTRUCTION(self, playerName, position1, position2):
         self.Map.buildStuff(playerName, Objects.STREET, position1, self.getRound())
@@ -182,14 +182,14 @@ class Gamestate:
             for j in range(i):
                 player.updateResourceCards(resourceCard, 0)
         for i in range(sum):
-            self.getPlayerToName(playerName).updateResourceCards(resourceCard, 1)
+            self.getPlayerForName(playerName).updateResourceCards(resourceCard, 1)
 
     def DEVELOPMENT(self, playerName, resourceCard1, resourceCard2):
-        self.getPlayerToName(playerName).updateResourceCards(resourceCard1, 1)
-        self.getPlayerToName(playerName).updateResourceCards(resourceCard2, 1)
+        self.getPlayerForName(playerName).updateResourceCards(resourceCard1, 1)
+        self.getPlayerForName(playerName).updateResourceCards(resourceCard2, 1)
 
     # ---- trade ----
-    def getPortsToPlayer(self, playerName):
+    def getPortsForPlayer(self, playerName):
         # not working
         availablePorts = []
         objects, buildings, streets = self.Map.getPlayerShit(playerName)
@@ -203,7 +203,7 @@ class Gamestate:
         objects, buildings, streets = self.Map.getPlayerShit(playerName)
         print("gewünschte Ressource: " + ", ".join([str(x.name) + ":" + str(x.value) for x in Resources]))
         r = self.inputCheck(Resources)
-        player = self.getPlayerToName(playerName)
+        player = self.getPlayerForName(playerName)
         if port == Ports.NONE:
             print("zu tauschende Ressource: " + ", ".join([str(x.name) + ":" + str(x.value) for x in Resources]))
             r1 = self.inputCheck(Resources)
@@ -235,9 +235,10 @@ class Gamestate:
 
     def tradex(self, playerName, x, card1, card2):
         for i in range(x):
-            self.getPlayerToName(playerName).updateResourceCards(card1, 0)
-        self.getPlayerToName(playerName).updateResourceCards(card2, 1)
+            self.getPlayerForName(playerName).updateResourceCards(card1, 0)
+        self.getPlayerForName(playerName).updateResourceCards(card2, 1)
 
 
 if __name__ == "__main__":
     gs = Gamestate("lia", "jakob", "edgar")
+    gs.getPlayerForName("")

@@ -1,6 +1,10 @@
 # import the pygame module
 import pygame
 import map
+# import simulation
+import entities
+import gamestate
+
 from entities import *
 
 # import pygame.locals for easier
@@ -144,9 +148,6 @@ class Hex(pygame.sprite.Sprite):
         self._drawOutline(screen, hex_coordinates)
         self._indexNodes(hex_coordinates)
 
-    def getColorToName(self, playerName):
-        pass
-
 
 class CatanBoard():
 
@@ -159,6 +160,9 @@ class CatanBoard():
         self.nodes = {}
         catanMap = map.CatanMap()
         self.generateBoard(catanMap.generateMap())
+        self.gamestate = gamestate.Gamestate("p1", "p2", "p3", "p4")
+        # self.simulation = simulation.Simulation(gamestate)
+        self.getColorForName("p1")
         self.gameloop()
 
     def buildGrid(self):
@@ -235,6 +239,11 @@ class CatanBoard():
                     self.running = False
 
                 pygame.display.flip()
+
+    # Playerinteraction
+    def getColorForName(self, playerName):
+        prio = self.gamestate.getPlayerForName(playerName).getPriority()
+        return PlayerColor(prio).name
 
 
 if __name__ == "__main__":
