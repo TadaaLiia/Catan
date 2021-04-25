@@ -248,4 +248,3 @@ class CatanBoard():
 
 if __name__ == "__main__":
     board = CatanBoard()
-    board.buildGrid()

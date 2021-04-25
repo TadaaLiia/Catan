@@ -5,8 +5,8 @@ import pickle
 
 class Simulation:
 
-    def __init__(self, gamestate, player=4):
-        self.JarvisVision = gamestate
+    def __init__(self, player=4):
+        pass
 
     def save(self, filename):
         # create a pickle file
@@ -87,25 +87,36 @@ class Simulation:
         player = self.getCurrentPlayer()
         assert type in Objects, "invalid type"
         if type == Objects.STREET:
-            assert player.getResourceCards()[Resources.WOOD] != 0, "street: missing wood"
-            assert player.getResourceCards()[Resources.CLAY] != 0, "street: missing clay"
-            self.JarvisVision.Map.buildStuff(playerName, type, position, self.getRound())
+            assert player.getResourceCards(
+            )[Resources.WOOD] != 0, "street: missing wood"
+            assert player.getResourceCards(
+            )[Resources.CLAY] != 0, "street: missing clay"
+            self.JarvisVision.Map.buildStuff(
+                playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, Resources.WOOD)
             self.removeResourceCards(playerName, Resources.CLAY)
         elif type == Objects.VILLAGE:
-            assert player.getResourceCards()[Resources.WOOD] != 0, "village: missing wood"
-            assert player.getResourceCards()[Resources.CLAY] != 0, "village: missing clay"
-            assert player.getResourceCards()[Resources.SHEEP] != 0, "village: missing sheep"
-            assert player.getResourceCards()[Resources.WHEAT] != 0, "village: missing wheat"
-            self.JarvisVision.Map.buildStuff(playerName, type, position, self.getRound())
+            assert player.getResourceCards(
+            )[Resources.WOOD] != 0, "village: missing wood"
+            assert player.getResourceCards(
+            )[Resources.CLAY] != 0, "village: missing clay"
+            assert player.getResourceCards(
+            )[Resources.SHEEP] != 0, "village: missing sheep"
+            assert player.getResourceCards(
+            )[Resources.WHEAT] != 0, "village: missing wheat"
+            self.JarvisVision.Map.buildStuff(
+                playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, Resources.WOOD)
             self.removeResourceCards(playerName, Resources.CLAY)
             self.removeResourceCards(playerName, Resources.SHEEP)
             self.removeResourceCards(playerName, Resources.WHEAT)
         elif type == Objects.CITY:
-            assert player.getResourceCards()[Resources.ORE] >= 3, "city: missing ore"
-            assert player.getResourceCards()[Resources.WHEAT] >= 2, "city: missing wheat"
-            self.JarvisVision.Map.buildStuff(playerName, type, position, self.getRound())
+            assert player.getResourceCards(
+            )[Resources.ORE] >= 3, "city: missing ore"
+            assert player.getResourceCards(
+            )[Resources.WHEAT] >= 2, "city: missing wheat"
+            self.JarvisVision.Map.buildStuff(
+                playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, Resources.ORE)
             self.removeResourceCards(playerName, Resources.ORE)
             self.removeResourceCards(playerName, Resources.ORE)
@@ -127,11 +138,13 @@ class Simulation:
 
     def giveResourceCards(self, playerName, card, count=1):
         for i in range(count):
-            self.JarvisVision.getPlayerForName(playerName).updateResourceCards(card, 1)
+            self.JarvisVision.getPlayerForName(
+                playerName).updateResourceCards(card, 1)
 
     def removeResourceCards(self, playerName, card, count=1):
         for i in range(count):
-            self.JarvisVision.getPlayerForName(playerName).updateResourceCards(card, 0)
+            self.JarvisVision.getPlayerForName(
+                playerName).updateResourceCards(card, 0)
 
     def handOutCards(self, roll):
         tiles = self.JarvisVision.Map.getTilesForValue(roll)
@@ -149,9 +162,12 @@ class Simulation:
 
     def drawDevelopmentCard(self):
         playerName = self.getCurrentPlayer().getName()
-        assert self.getCurrentPlayer().getResourceCards()[Resources.SHEEP] != 0, "missing sheep"
-        assert self.getCurrentPlayer().getResourceCards()[Resources.ORE] != 0, "missing ore"
-        assert self.getCurrentPlayer().getResourceCards()[Resources.WHEAT] != 0, "missing wheat"
+        assert self.getCurrentPlayer().getResourceCards()[
+            Resources.SHEEP] != 0, "missing sheep"
+        assert self.getCurrentPlayer().getResourceCards()[
+            Resources.ORE] != 0, "missing ore"
+        assert self.getCurrentPlayer().getResourceCards()[
+            Resources.WHEAT] != 0, "missing wheat"
         card = self.JarvisVision.getRandomDevCard()
         self.removeResourceCards(playerName, Resources.SHEEP)
         self.removeResourceCards(playerName, Resources.ORE)
@@ -194,7 +210,8 @@ class Simulation:
                 if card[1] != self.getRound():
                     devCards.append(card[0])
 
-        legalMoves.extend([(methods["playDevCard"], card) for card in devCards if (card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.getDiced() != 0)])
+        legalMoves.extend([(methods["playDevCard"], card) for card in devCards if (
+            card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.getDiced() != 0)])
 
         if self.JarvisVision.getDiced() == 0:
             legalMoves.append((methods["roll"], None))
@@ -222,10 +239,11 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    gs = Gamestate("maxspdcbr", "jamoinmoritz", "edgar")
-    sim = Simulation(gs)
+    # gs = Gamestate("maxspdcbr", "jamoinmoritz", "edgar")
+    # sim = Simulation(gs)
+    sim = Simulation()
 
-    sim.load("gs1")
+    sim.load("saves/gs1")
 
     print("Round:" + str(sim.getRound()))
     sim.drawDevelopmentCard()
