@@ -66,7 +66,6 @@ class Node(pygame.sprite.Sprite):
         else:
             raise ValueError("No village on this node")
 
-
 class Hex(pygame.sprite.Sprite):
     def __init__(self, _id, color, size=70, number=None, offset=(0, 0)):
         super(Hex, self).__init__()
@@ -163,7 +162,31 @@ class CatanBoard():
         self.gamestate = gamestate.Gamestate("p1", "p2", "p3", "p4")
         # self.simulation = simulation.Simulation(gamestate)
         self.getColorForName("p1")
+        self.buildStreet((7,8), WHITE)
         self.gameloop()
+
+    def buildStreet(self, pos, color):
+        assert type(pos) == tuple and len(pos) == 2, "Invalid Position"
+        width = 5
+        height_offset = 3
+        
+        #find coordinates for pos
+        hexes = [hex for hex in self.hexes if hex.id in pos]
+        intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()))
+        print(intersecting_coordinates)
+        
+        #draw the Street
+        points = [
+            (intersecting_coordinates[0][0] - (width/2),intersecting_coordinates[0][1] + height_offset),
+            (intersecting_coordinates[0][0] + (width/2),intersecting_coordinates[0][1] + height_offset),
+            (intersecting_coordinates[1][0] + (width/2),intersecting_coordinates[1][1] - height_offset),
+            (intersecting_coordinates[1][0] - (width/2),intersecting_coordinates[1][1] - height_offset),
+        ]
+        pygame.draw.polygon(self.screen, color, points)
+        
+        #draw Outline
+        pygame.draw.lines(self.screen, DARK_GRAY, closed=True, points=points, width=1)
+        
 
     def buildGrid(self):
         offsets = [
