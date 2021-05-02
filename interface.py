@@ -13,6 +13,7 @@ import pygame.freetype
 import math
 
 BLUE = pygame.Color("#78e3fd")
+DARK_BLUE = pygame.Color("#000066")
 WHITE = pygame.Color("#F8F7F9")
 DARK_GREEN = pygame.Color("#082d0f")
 GREEN = pygame.Color("#7FB800")
@@ -111,6 +112,15 @@ class Hex(pygame.sprite.Sprite):
         number_rect.center = coordinates
         screen.blit(number, number_rect)
 
+    def _drawText(self, screen, game_font, text, color):
+        hex_MIDPOINT = (MIDPOINT[0] + (self.offset[0] *
+                        math.sqrt(3)), MIDPOINT[1] + (self.offset[1] * 2))
+        coordinates = (hex_MIDPOINT[0], hex_MIDPOINT[1])
+        number, number_rect = game_font.render(str(text), color)
+        number_rect.center = coordinates
+        screen.blit(number, number_rect)
+
+
     def _drawId(self, screen):
         _font = pygame.freetype.Font(FONT_PATH, 12)
         hex_MIDPOINT = (MIDPOINT[0] + (self.offset[0] *
@@ -159,6 +169,7 @@ class CatanBoard():
         self.screen = pygame.display.set_mode((1200, 1200))
         self.running = True
         self.game_font = pygame.freetype.Font(FONT_PATH, 24)
+        self.game_font_ports = pygame.freetype.Font(FONT_PATH, 14)
         self.hexes = []
         self.nodes = {}
         catanMap = map.CatanMap()
@@ -166,16 +177,20 @@ class CatanBoard():
         # self.gamestate = gamestate.Gamestate("p1", "p2", "p3", "p4")
         self.simulation = simulation.Simulation()
         self.simulation.load("saves/gs1")
-        self.getColorForName("p1")
+        self.drawGamestate(self.simulation.JarvisVision)
         self.gameloop()
         
     def drawGamestate(self, gamestate):
         self.screen.fill(BLACK)
-        self.generateBoard(gamestate.Map.Tilelist)
-        for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.Objectlist if obj["type"] == Objects.STREET]:
+        self.generateBoard(gamestate.Map.TileList)
+        self.drawPorts()
+        for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.ObjectList if obj["type"] == Objects.STREET]:
             self.buildStreet(street[0], self.getColorForName(street[1]))
-            print(self.getColorForName(street[1]) + ";" +type(self.getColorForName(street[1])))
-            
+        for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.ObjectList if obj["type"] == Objects.CITY]:
+            self.buildCity(street[0], self.getColorForName(street[1]))
+        for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.ObjectList if obj["type"] == Objects.VILLAGE]:
+            self.buildVillage(street[0], self.getColorForName(street[1]))
+        self.drawBandit(self.simulation.JarvisVision.Map.BanditPosition)
 
     def buildStreet(self, pos, color):
         assert type(pos) == tuple and len(pos) == 2, "Invalid Position"
@@ -185,10 +200,9 @@ class CatanBoard():
         #find coordinates for pos
         hexes = [hex for hex in self.hexes if hex.id in pos]
         intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()))
-        print(intersecting_coordinates)
         
         #draw the Street
-        pygame.draw.line(self.screen, WHITE, intersecting_coordinates[0], intersecting_coordinates[1], width=6)
+        pygame.draw.line(self.screen, color, intersecting_coordinates[0], intersecting_coordinates[1], width=6)
 
     def buildVillage(self, pos, color):
         assert type(pos) == tuple and len(pos) == 3, "Invalid Position"
@@ -197,7 +211,6 @@ class CatanBoard():
         #find coordinates for pos
         hexes = [hex for hex in self.hexes if hex.id in pos]
         intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()) & set(hexes[2].calcHexCoordinates()))
-        print(intersecting_coordinates)
         
         #draw the Village
         points = [
@@ -216,9 +229,7 @@ class CatanBoard():
 
         #find coordinates for pos
         hexes = [hex for hex in self.hexes if hex.id in pos]
-        print([hex.calcHexCoordinates() for hex in hexes])
         intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()) & set(hexes[2].calcHexCoordinates()))
-        print(intersecting_coordinates)
         
         #draw the Village
         points = [
@@ -277,6 +288,37 @@ class CatanBoard():
                 newNodes[pos] = self.nodes[key]
         self.nodes = newNodes
 
+    def drawPorts(self):
+        generic_ports = [(0,5), (8,13), (20,21), (29,33)]
+        specific_ports = [(2,6, Ports.SHEEP), (9, 10, Ports.ORE), (22, 23, Ports.WHEAT), (26, 32, Ports.CLAY), (30, 35, Ports.WOOD)]
+        
+        width = 11
+        height_offset = 2
+        
+        for port in generic_ports:
+            #find coordinates for pos
+            hexes = [hex for hex in self.hexes if hex.id in port]
+            intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()))
+            #draw text
+            for hex in hexes:
+                if self.simulation.JarvisVision.Map.getTileList()[hex.id][0] == Tiles.OCEAN:
+                    hex._drawText(self.screen, self.game_font_ports, "3:1", DARK_BLUE)
+            #draw the Street
+            pygame.draw.line(self.screen, DARK_BLUE, intersecting_coordinates[0], intersecting_coordinates[1], width=11)
+            
+        for port in specific_ports:
+            #find coordinates for pos
+            hexes = [hex for hex in self.hexes if hex.id in port]
+            intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()))
+            #draw text
+            text = "2:1 " + port[2].name
+            for hex in hexes:
+                if self.simulation.JarvisVision.Map.getTileList()[hex.id][0] == Tiles.OCEAN:
+                    
+                    hex._drawText(self.screen, self.game_font_ports, text, DARK_BLUE)
+            #draw the Street
+            pygame.draw.line(self.screen, DARK_BLUE, intersecting_coordinates[0], intersecting_coordinates[1], width=11)
+
     def generateBoard(self, TileList):
         offsets = self.buildGrid()
         mapping = {
@@ -306,7 +348,6 @@ class CatanBoard():
                     elif event.key == K_RIGHT:
                         # show next step
                         firstNode = list(self.nodes.keys())[0]
-                        print(firstNode)
                         self.nodes[firstNode].buildVillage(
                             self.screen)
                         pass
@@ -320,7 +361,7 @@ class CatanBoard():
 
     # Playerinteraction
     def getColorForName(self, playerName):
-        prio = self.gamestate.getPlayerForName(playerName).getPriority()
+        prio = self.simulation.JarvisVision.getPlayerForName(playerName).getPriority()
         return PlayerColor(prio).name
 
 

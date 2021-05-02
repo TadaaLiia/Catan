@@ -80,4 +80,4 @@ class PlayerColor(enum.Enum):
     ORANGE = 0
     BLUE = 1
     WHITE = 2
-    RED = 3
+    BRIGHT_RED = 3
