@@ -1,9 +1,8 @@
 # import the pygame module
 import pygame
 import map
-# import simulation
-import entities
-import gamestate
+import simulation
+# import gamestate
 
 from entities import *
 
@@ -160,8 +159,9 @@ class CatanBoard():
         self.nodes = {}
         catanMap = map.CatanMap()
         self.generateBoard(catanMap.generateMap())
-        self.gamestate = gamestate.Gamestate("p1", "p2", "p3", "p4")
-        # self.simulation = simulation.Simulation(gamestate)
+        # self.gamestate = gamestate.Gamestate("p1", "p2", "p3", "p4")
+        self.simulation = simulation.Simulation()
+        self.simulation.load("saves/gs1")
         self.getColorForName("p1")
         self.gameloop()
 

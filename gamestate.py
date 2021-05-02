@@ -2,6 +2,7 @@ from map import CatanMap
 from player import Player
 import random
 from entities import *
+import pickle
 
 
 class Gamestate:
@@ -241,4 +242,4 @@ class Gamestate:
 
 if __name__ == "__main__":
     gs = Gamestate("lia", "jakob", "edgar")
-    gs.getPlayerForName("")
+

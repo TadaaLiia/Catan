@@ -9,7 +9,7 @@ class CatanMap:
     - Adjacency: Matrix(36x36), adjacent tiles
     - AvailableNodes: List, availableNodes(x,y,z)
     - TileList: List, (TileType, value)
-    - ObjectList: {player:green, type:a, position:(x,y)}
+    - ObjectList: {player:name, type:a, position:(x,y)}
 
     - buildStuff: objectList.append
     - setBandit: newTileNumber
