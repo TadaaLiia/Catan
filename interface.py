@@ -20,6 +20,11 @@ GRAY = pygame.Color("#8B8982")
 YELLOW = pygame.Color("#FED766")
 BROWN = pygame.Color("#7A4419")
 DARK_GRAY = pygame.Color("#3C3C3C")
+BRIGHT_RED = pygame.Color("#AE0700")
+DARK_RED = pygame.Color("#800000")
+BLACK = pygame.Color("#000000")
+
+
 
 MIDPOINT = (400, 50)
 FONT_PATH = "data/RobotoMono-Regular.ttf"
@@ -65,7 +70,6 @@ class Node(pygame.sprite.Sprite):
         else:
             raise ValueError("No village on this node")
 
-
 class Hex(pygame.sprite.Sprite):
     def __init__(self, _id, color, size=70, number=None, offset=(0, 0)):
         super(Hex, self).__init__()
@@ -94,7 +98,7 @@ class Hex(pygame.sprite.Sprite):
              (hex_MIDPOINT[1] - (0.25 * y_height)))),
             (hex_MIDPOINT[0], (hex_MIDPOINT[1] - (0.5 * y_height))),
             ((hex_MIDPOINT[0] - (x_width * 0.5)), (hex_MIDPOINT[1] - (0.25 * y_height)))]
-        return coordinates
+        return [(int(coords[0]),int(coords[1])) for coords in coordinates]
 
     def _drawNum(self, screen, game_font):
         if not self.number:
@@ -164,6 +168,80 @@ class CatanBoard():
         self.simulation.load("saves/gs1")
         self.getColorForName("p1")
         self.gameloop()
+        
+    def drawGamestate(self, gamestate):
+        self.screen.fill(BLACK)
+        self.generateBoard(gamestate.Map.Tilelist)
+        for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.Objectlist if obj["type"] == Objects.STREET]:
+            self.buildStreet(street[0], self.getColorForName(street[1]))
+            print(self.getColorForName(street[1]) + ";" +type(self.getColorForName(street[1])))
+            
+
+    def buildStreet(self, pos, color):
+        assert type(pos) == tuple and len(pos) == 2, "Invalid Position"
+        width = 6
+        height_offset = 3
+        
+        #find coordinates for pos
+        hexes = [hex for hex in self.hexes if hex.id in pos]
+        intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()))
+        print(intersecting_coordinates)
+        
+        #draw the Street
+        pygame.draw.line(self.screen, WHITE, intersecting_coordinates[0], intersecting_coordinates[1], width=6)
+
+    def buildVillage(self, pos, color):
+        assert type(pos) == tuple and len(pos) == 3, "Invalid Position"
+        size = 12
+
+        #find coordinates for pos
+        hexes = [hex for hex in self.hexes if hex.id in pos]
+        intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()) & set(hexes[2].calcHexCoordinates()))
+        print(intersecting_coordinates)
+        
+        #draw the Village
+        points = [
+            (intersecting_coordinates[0][0],intersecting_coordinates[0][1] - (size)),
+            (intersecting_coordinates[0][0] - size,intersecting_coordinates[0][1] + (size)),
+            (intersecting_coordinates[0][0] + size,intersecting_coordinates[0][1] + (size)),
+        ]
+        pygame.draw.polygon(self.screen, color, points)
+        
+        #draw Outline
+        pygame.draw.lines(self.screen, DARK_GRAY, closed=True, points=points, width=1)
+        
+    def buildCity(self, pos, color):
+        assert type(pos) == tuple and len(pos) == 3, "Invalid Position"
+        size = 15
+
+        #find coordinates for pos
+        hexes = [hex for hex in self.hexes if hex.id in pos]
+        print([hex.calcHexCoordinates() for hex in hexes])
+        intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()) & set(hexes[2].calcHexCoordinates()))
+        print(intersecting_coordinates)
+        
+        #draw the Village
+        points = [
+            (intersecting_coordinates[0][0] - size,intersecting_coordinates[0][1] - (size)),
+            (intersecting_coordinates[0][0] - size,intersecting_coordinates[0][1] + (size)),
+            (intersecting_coordinates[0][0] + size,intersecting_coordinates[0][1] + (size)),
+            (intersecting_coordinates[0][0] + size,intersecting_coordinates[0][1] - (size))
+        ]
+        pygame.draw.polygon(self.screen, color, points)
+        
+        #draw Outline
+        pygame.draw.lines(self.screen, DARK_GRAY, closed=True, points=points, width=1)
+        
+    def drawBandit(self, pos):
+        assert type(pos) == int, "Invalid Position"
+        
+        #Get Coordinates for Hex
+        hexes = [hex for hex in self.hexes if hex.id == pos]
+        coordinates = [hex.calcHexCoordinates() for hex in hexes][0]
+        
+        #draw red x
+        pygame.draw.line(self.screen, DARK_RED, coordinates[0], coordinates[3], width=6)
+        pygame.draw.line(self.screen, DARK_RED, coordinates[2], coordinates[5], width=6)
 
     def buildGrid(self):
         offsets = [
