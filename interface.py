@@ -1,9 +1,5 @@
-# import the pygame module
 import pygame
-import map
 import simulation
-# import gamestate
-
 from entities import *
 
 # import pygame.locals for easier
@@ -24,7 +20,6 @@ DARK_GRAY = pygame.Color("#3C3C3C")
 BRIGHT_RED = pygame.Color("#AE0700")
 DARK_RED = pygame.Color("#800000")
 BLACK = pygame.Color("#000000")
-
 
 
 MIDPOINT = (400, 50)
@@ -161,6 +156,21 @@ class Hex(pygame.sprite.Sprite):
         self._drawOutline(screen, hex_coordinates)
         self._indexNodes(hex_coordinates)
 
+def button(screen, position, text):
+
+    font = pygame.font.SysFont("Arial", 50)
+    text_render = font.render(text, 1, WHITE)
+    x, y, w , h = text_render.get_rect()
+    h += 10
+    w += 10
+    x, y = position
+    pygame.draw.line(screen, (150, 150, 150), (x, y), (x + w , y), 5)
+    pygame.draw.line(screen, (150, 150, 150), (x, y - 2), (x, y + h), 5)
+    pygame.draw.line(screen, (50, 50, 50), (x, y + h), (x + w , y + h), 5)
+    pygame.draw.line(screen, (50, 50, 50), (x + w , y+h), [x + w , y], 5)
+    pygame.draw.rect(screen, (100, 100, 100), (x, y, w , h))
+    return screen.blit(text_render, (x, y))
+ 
 
 class CatanBoard():
 
@@ -172,12 +182,10 @@ class CatanBoard():
         self.game_font_ports = pygame.freetype.Font(FONT_PATH, 14)
         self.hexes = []
         self.nodes = {}
-        catanMap = map.CatanMap()
-        self.generateBoard(catanMap.generateMap())
-        # self.gamestate = gamestate.Gamestate("p1", "p2", "p3", "p4")
         self.simulation = simulation.Simulation()
         self.simulation.load("saves/gs1")
         self.drawGamestate(self.simulation.JarvisVision)
+        self.b1 = button(self.screen, (1000, 900), "  :)  ")
         self.gameloop()
         
     def drawGamestate(self, gamestate):
@@ -314,7 +322,6 @@ class CatanBoard():
             text = "2:1 " + port[2].name
             for hex in hexes:
                 if self.simulation.JarvisVision.Map.getTileList()[hex.id][0] == Tiles.OCEAN:
-                    
                     hex._drawText(self.screen, self.game_font_ports, text, DARK_BLUE)
             #draw the Street
             pygame.draw.line(self.screen, DARK_BLUE, intersecting_coordinates[0], intersecting_coordinates[1], width=11)
@@ -341,6 +348,9 @@ class CatanBoard():
     def gameloop(self):
         while self.running:
             for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.b1.collidepoint(pygame.mouse.get_pos()):
+                        print("a")
                 if event.type == KEYDOWN:
                     if event.key == K_BACKSPACE:
                         # reset board
