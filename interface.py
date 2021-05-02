@@ -23,6 +23,7 @@ BROWN = pygame.Color("#7A4419")
 DARK_GRAY = pygame.Color("#3C3C3C")
 BRIGHT_RED = pygame.Color("#AE0700")
 DARK_RED = pygame.Color("#800000")
+BLACK = pygame.Color("#000000")
 
 
 
@@ -164,13 +165,18 @@ class CatanBoard():
         catanMap = map.CatanMap()
         self.generateBoard(catanMap.generateMap())
         self.gamestate = gamestate.Gamestate("p1", "p2", "p3", "p4")
+        self.gamestate.
         # self.simulation = simulation.Simulation(gamestate)
-        self.getColorForName("p1")
-        self.buildStreet((7,13), WHITE)
-        self.buildVillage((7,12,13), WHITE)
-        self.buildCity((18,12,19), WHITE)
-        self.drawBandit(12)
+        self.drawGamestate(gamestate)
         self.gameloop()
+        
+    def drawGamestate(self, gamestate):
+        self.screen.fill(BLACK)
+        self.generateBoard(gamestate.Map.Tilelist)
+        for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.Objectlist if obj["type"] == Objects.STREET]:
+            self.buildStreet(street[0], self.getColorForName(street[1]))
+            print(self.getColorForName(street[1]) + ";" +type(self.getColorForName(street[1])))
+            
 
     def buildStreet(self, pos, color):
         assert type(pos) == tuple and len(pos) == 2, "Invalid Position"
