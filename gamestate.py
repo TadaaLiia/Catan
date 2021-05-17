@@ -25,6 +25,7 @@ class Gamestate:
         self.OhHiMarc = self.setCurrentPlayer()  # currentPlayer
         self.PlayedDev = 0
         self.Diced = 0
+        self.Roll7 = 0
 
     def inputCheck(self, type):
         try:

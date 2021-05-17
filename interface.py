@@ -350,7 +350,9 @@ class CatanBoard():
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.b1.collidepoint(pygame.mouse.get_pos()):
-                        print("a")
+                        self.simulation.getNextGamestate(self.simulation.getRandomLegalMove())
+                        print("bö")
+                        self.drawGamestate(self.simulation.JarvisVision)
                 if event.type == KEYDOWN:
                     if event.key == K_BACKSPACE:
                         # reset board

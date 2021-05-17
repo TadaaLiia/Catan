@@ -1,4 +1,5 @@
 import random
+from gamestate import *
 from entities import *
 import pickle
 
@@ -6,7 +7,7 @@ import pickle
 class Simulation:
 
     def __init__(self, player=4):
-        pass
+        self.JarvisVision = Gamestate("a", "b", "c", "d")
 
     def save(self, filename):
         # create a pickle file
@@ -38,7 +39,8 @@ class Simulation:
         if r != 7:
             self.handOutCards(r)
         else:
-            self.roll7(self.getCurrentPlayer())
+            self.JarvisVision.Roll7 = 1
+            # self.roll7(self.getCurrentPlayer())
         self.JarvisVision.setDiced(1)
 
     def endOfTurn(self):
@@ -50,8 +52,6 @@ class Simulation:
         self.JarvisVision.setDiced(0)
 
     def roll7(self, position=0):
-        # print("bandit position")
-        # position = self.inputCheck()
         self.bandit(position)
         villages = self.JarvisVision.Map.getVillagesForTile(position)
         cities = self.JarvisVision.Map.getCitiesForTile(position)
@@ -60,6 +60,7 @@ class Simulation:
             card = player.getRandomResourceCard()
             self.removeResourceCards(player, card)
             self.giveResourceCards(self.getCurrentPlayer().getName(), card)
+        self.JarvisVision.Roll7 == 0
 
     # ---- Interaction with JarvisVision
 
@@ -122,6 +123,17 @@ class Simulation:
             self.removeResourceCards(playerName, Resources.ORE)
             self.removeResourceCards(playerName, Resources.WHEAT)
             self.removeResourceCards(playerName, Resources.WHEAT)
+
+    def getLegalBanditPositions(self):
+        pos = []
+        for count, tile in enumerate(self.JarvisVision.Map.getTileList()):
+            if tile[0] != Tiles.OCEAN and tile[0] != Tiles.DESERT:
+                pos.append(count)
+        
+        if self.JarvisVision.Map.getBanditPosition() in pos:
+            pos.remove(self.JarvisVision.Map.getBanditPosition())
+
+        return pos
 
     def bandit(self, position):
         self.JarvisVision.Map.setBanditPosition(position)
@@ -198,8 +210,10 @@ class Simulation:
         methods = {
             "playDevCard": self.playDevelopmentCard,
             "roll": self.roll,
+            "roll7": self.roll7,
             "buildObject": self.buildObject,
-            "drawDevCard": self.drawDevelopmentCard
+            "drawDevCard": self.drawDevelopmentCard,
+            "endOfTurn": self.endOfTurn
         }
         legalMoves = []
         player = self.getCurrentPlayer()
@@ -210,57 +224,72 @@ class Simulation:
                 if card[1] != self.getRound():
                     devCards.append(card[0])
 
-        legalMoves.extend([(methods["playDevCard"], card) for card in devCards if (
+        legalMoves.extend([(methods["playDevCard"], [card]) for card in devCards if (
             card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.getDiced() != 0)])
 
         if self.JarvisVision.getDiced() == 0:
-            legalMoves.append((methods["roll"], None))
+            legalMoves.append((methods["roll"], []))
+        #elif self.JarvisVision.Roll7 == 1:
+        #    positions = self.getLegalBanditPositions()
+        #    rand = random.randrange(len(positions))
+        #    legalMoves.append((methods["roll7"], positions[rand]))
         else:
+            legalMoves.append((methods["endOfTurn"], []))
             # build
             if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0:
                 streets = self.getAvailableStreetPositions()
                 for street in streets:
-                    legalMoves.append((methods["buildObject"], street))
+                    legalMoves.append((methods["buildObject"], [Objects.STREET, street]))
 
             if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0 and player.getResourceCards()[Resources.SHEEP] != 0 and player.getResourceCards()[Resources.WHEAT] != 0:
                 villages = self.getAvailableVillagePositions()
                 for village in villages:
-                    legalMoves.append((methods["buildObject"], village))
+                    legalMoves.append((methods["buildObject"], [Objects.VILLAGE, village]))
 
             if player.getResourceCards()[Resources.ORE] >= 3 and player.getResourceCards()[Resources.WHEAT] >= 2:
                 cities = self.getAvailableCityPositions()
                 for city in cities:
-                    legalMoves.append((methods["buildObject"], city))
+                    legalMoves.append((methods["buildObject"], [Objects.CITY, city]))
             # draw dev
             if player.getResourceCards()[Resources.ORE] != 0 and player.getResourceCards()[Resources.WHEAT] != 0 and player.getResourceCards()[Resources.SHEEP] != 0:
-                legalMoves.append((methods["drawDevCard"], None))
+                legalMoves.append((methods["drawDevCard"], []))
             # trade
         return legalMoves
 
+    def getRandomLegalMove(self):
+        legalMoves = self.getLegalMoves()
+        rand = random.randrange(len(legalMoves))
+        return legalMoves[rand]
+
+    def getNextGamestate(self, legalMove):
+        legalMove[0](*legalMove[1])
+        # return self.JarvisVision
 
 if __name__ == "__main__":
-    # gs = Gamestate("maxspdcbr", "jamoinmoritz", "edgar")
-    # sim = Simulation(gs)
     sim = Simulation()
-
     sim.load("saves/gs1")
 
     print("Round:" + str(sim.getRound()))
     sim.drawDevelopmentCard()
     sim.drawDevelopmentCard()
-    print(sim.getLegalMoves())
+    sim.getNextGamestate(sim.getRandomLegalMove())
+    #print(sim.getLegalMoves())
 
     sim.endOfTurn()
+    sim.getRandomLegalMove()
     # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
     sim.endOfTurn()
+    sim.getRandomLegalMove()
     # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
     sim.endOfTurn()
+    sim.getRandomLegalMove()
     # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
-    print(sim.getLegalMoves())
+    #print(sim.getLegalMoves())
     sim.roll()
-    print(sim.getLegalMoves())
+    sim.getRandomLegalMove()
+    # print(sim.getLegalMoves())
     sim.endOfTurn()
-    print(sim.getLegalMoves())
+    # print(sim.getLegalMoves())
 
 
 '''
@@ -293,7 +322,3 @@ Code zu GS1:
     print(sim.JarvisVision.Diced)
 '''
 
-"""
-
-
-"""
