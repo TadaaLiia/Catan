@@ -41,15 +41,15 @@ class Simulation:
         else:
             self.JarvisVision.Roll7 = 1
             # self.roll7(self.getCurrentPlayer())
-        self.JarvisVision.setDiced(1)
+        self.JarvisVision.Diced = 1
 
     def endOfTurn(self):
         '''
         increments turn and round, updates CurrentPlayer
         '''
         self.JarvisVision.updateTurnPlayer()
-        self.JarvisVision.setPlayedDev(0)
-        self.JarvisVision.setDiced(0)
+        self.JarvisVision.PlayedDev = 0
+        self.JarvisVision.Diced = 0
 
     def roll7(self, position=0):
         self.bandit(position)
@@ -59,52 +59,46 @@ class Simulation:
         for player in players:
             card = player.getRandomResourceCard()
             self.removeResourceCards(player, card)
-            self.giveResourceCards(self.getCurrentPlayer().getName(), card)
+            self.giveResourceCards(self.getCurrentPlayer().Name, card)
         self.JarvisVision.Roll7 == 0
 
     # ---- Interaction with JarvisVision
 
     def getRound(self):
-        return self.JarvisVision.getRound()
+        return self.JarvisVision.Round
 
     def getCurrentPlayer(self):
-        return self.JarvisVision.getCurrentPlayer()
+        return self.JarvisVision.OhHiMarc
 
-    # ---- Interaction with CatanMap ----
+    # ---- Interaction with Map ----
     def getObjectList(self):
-        return self.JarvisVision.Map.getObjectList()
+        return self.JarvisVision.Map.ObjectList
 
     def getAvailableStreetPositions(self):
-        return self.JarvisVision.Map.getAvailableStreets(self.getCurrentPlayer().getName())
+        return self.JarvisVision.Map.getAvailableStreets(self.getCurrentPlayer().Name)
 
     def getAvailableVillagePositions(self):
-        return self.JarvisVision.Map.getAvailableVillages(self.getCurrentPlayer().getName(), self.getRound())
+        return self.JarvisVision.Map.getAvailableVillages(self.getCurrentPlayer().Name, self.getRound())
 
     def getAvailableCityPositions(self):
-        return self.JarvisVision.Map.getAvailableCities(self.getCurrentPlayer().getName(), self.getRound())
+        return self.JarvisVision.Map.getAvailableCities(self.getCurrentPlayer().Name, self.getRound())
 
     def buildObject(self, type, position):
-        playerName = self.getCurrentPlayer().getName()
+        playerName = self.getCurrentPlayer().Name
         player = self.getCurrentPlayer()
         assert type in Objects, "invalid type"
         if type == Objects.STREET:
-            assert player.getResourceCards(
-            )[Resources.WOOD] != 0, "street: missing wood"
-            assert player.getResourceCards(
-            )[Resources.CLAY] != 0, "street: missing clay"
+            assert player.ResourceCards[Resources.WOOD] != 0, "street: missing wood"
+            assert player.ResourceCards[Resources.CLAY] != 0, "street: missing clay"
             self.JarvisVision.Map.buildStuff(
                 playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, Resources.WOOD)
             self.removeResourceCards(playerName, Resources.CLAY)
         elif type == Objects.VILLAGE:
-            assert player.getResourceCards(
-            )[Resources.WOOD] != 0, "village: missing wood"
-            assert player.getResourceCards(
-            )[Resources.CLAY] != 0, "village: missing clay"
-            assert player.getResourceCards(
-            )[Resources.SHEEP] != 0, "village: missing sheep"
-            assert player.getResourceCards(
-            )[Resources.WHEAT] != 0, "village: missing wheat"
+            assert player.ResourceCards[Resources.WOOD] != 0, "village: missing wood"
+            assert player.ResourceCards[Resources.CLAY] != 0, "village: missing clay"
+            assert player.ResourceCards[Resources.SHEEP] != 0, "village: missing sheep"
+            assert player.ResourceCards[Resources.WHEAT] != 0, "village: missing wheat"
             self.JarvisVision.Map.buildStuff(
                 playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, Resources.WOOD)
@@ -112,10 +106,8 @@ class Simulation:
             self.removeResourceCards(playerName, Resources.SHEEP)
             self.removeResourceCards(playerName, Resources.WHEAT)
         elif type == Objects.CITY:
-            assert player.getResourceCards(
-            )[Resources.ORE] >= 3, "city: missing ore"
-            assert player.getResourceCards(
-            )[Resources.WHEAT] >= 2, "city: missing wheat"
+            assert player.ResourceCards[Resources.ORE] >= 3, "city: missing ore"
+            assert player.ResourceCards[Resources.WHEAT] >= 2, "city: missing wheat"
             self.JarvisVision.Map.buildStuff(
                 playerName, type, position, self.getRound())
             self.removeResourceCards(playerName, Resources.ORE)
@@ -126,13 +118,11 @@ class Simulation:
 
     def getLegalBanditPositions(self):
         pos = []
-        for count, tile in enumerate(self.JarvisVision.Map.getTileList()):
+        for count, tile in enumerate(self.JarvisVision.Map.TileList):
             if tile[0] != Tiles.OCEAN and tile[0] != Tiles.DESERT:
                 pos.append(count)
-        
-        if self.JarvisVision.Map.getBanditPosition() in pos:
-            pos.remove(self.JarvisVision.Map.getBanditPosition())
-
+        if self.JarvisVision.Map.BanditPosition in pos:
+            pos.remove(self.JarvisVision.Map.BanditPosition)
         return pos
 
     def bandit(self, position):
@@ -146,7 +136,7 @@ class Simulation:
         self.JarvisVision.Psuesch3.Priority = (3 + begin) % player
         if player == 4:
             self.JarvisVision.Psuesch4.Priority = (4 + begin) % player
-        self.JarvisVision.setCurrentPlayer()
+        self.JarvisVision.nextCurrentPlayer()
 
     def giveResourceCards(self, playerName, card, count=1):
         for i in range(count):
@@ -160,34 +150,34 @@ class Simulation:
 
     def handOutCards(self, roll):
         tiles = self.JarvisVision.Map.getTilesForValue(roll)
-        players = self.JarvisVision.getPlayerList()
+        players = self.JarvisVision.PlayerList
         for tile in tiles:
             villages = self.JarvisVision.Map.getVillagesForTile(tile[0])
             cities = self.JarvisVision.Map.getCitiesForTile(tile[0])
             for player in players:
                 for v in villages:
-                    if v == player.getName():
-                        self.giveResourceCards(player.getName(), tile[1])
+                    if v == player.Name:
+                        self.giveResourceCards(player.Name, tile[1])
                 for c in cities:
-                    if c == player.getName():
-                        self.giveResourceCards(player.getName(), tile[1], 2)
+                    if c == player.Name:
+                        self.giveResourceCards(player.Name, tile[1], 2)
 
     def drawDevelopmentCard(self):
-        playerName = self.getCurrentPlayer().getName()
-        assert self.getCurrentPlayer().getResourceCards()[
+        playerName = self.getCurrentPlayer().Name
+        assert self.getCurrentPlayer().ResourceCards[
             Resources.SHEEP] != 0, "missing sheep"
-        assert self.getCurrentPlayer().getResourceCards()[
+        assert self.getCurrentPlayer().ResourceCards[
             Resources.ORE] != 0, "missing ore"
-        assert self.getCurrentPlayer().getResourceCards()[
+        assert self.getCurrentPlayer().ResourceCards[
             Resources.WHEAT] != 0, "missing wheat"
         card = self.JarvisVision.getRandomDevCard()
         self.removeResourceCards(playerName, Resources.SHEEP)
         self.removeResourceCards(playerName, Resources.ORE)
         self.removeResourceCards(playerName, Resources.WHEAT)
-        self.JarvisVision.getCurrentPlayer().updateDevelopmentCards(card, self.getRound())
+        self.JarvisVision.OhHiMarc.updateDevelopmentCards(card, self.getRound())
 
     def playDevelopmentCard(self, devCard):
-        playerName = self.getCurrentPlayer().getName()
+        playerName = self.getCurrentPlayer().Name
         r = self.getCurrentPlayer().updateDevelopmentCards(devCard, self.getRound(), 1)
         if r == 1:
             if devCard == DevelopmentCards.KNIGHT_CARD:
@@ -219,39 +209,39 @@ class Simulation:
         player = self.getCurrentPlayer()
 
         devCards = []
-        if self.JarvisVision.getPlayedDev() == 0:
-            for card in player.getDevelopmentCards():
+        if self.JarvisVision.PlayedDev == 0:
+            for card in player.DevelopmentCards:
                 if card[1] != self.getRound():
                     devCards.append(card[0])
 
         legalMoves.extend([(methods["playDevCard"], [card]) for card in devCards if (
-            card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.getDiced() != 0)])
+            card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.Diced != 0)])
 
-        if self.JarvisVision.getDiced() == 0:
+        if self.JarvisVision.Diced == 0:
             legalMoves.append((methods["roll"], []))
-        #elif self.JarvisVision.Roll7 == 1:
+        # elif self.JarvisVision.Roll7 == 1:
         #    positions = self.getLegalBanditPositions()
         #    rand = random.randrange(len(positions))
         #    legalMoves.append((methods["roll7"], positions[rand]))
         else:
             legalMoves.append((methods["endOfTurn"], []))
             # build
-            if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0:
+            if player.ResourceCards[Resources.WOOD] != 0 and player.ResourceCards[Resources.CLAY] != 0:
                 streets = self.getAvailableStreetPositions()
                 for street in streets:
                     legalMoves.append((methods["buildObject"], [Objects.STREET, street]))
 
-            if player.getResourceCards()[Resources.WOOD] != 0 and player.getResourceCards()[Resources.CLAY] != 0 and player.getResourceCards()[Resources.SHEEP] != 0 and player.getResourceCards()[Resources.WHEAT] != 0:
+            if player.ResourceCards[Resources.WOOD] != 0 and player.ResourceCards[Resources.CLAY] != 0 and player.ResourceCards[Resources.SHEEP] != 0 and player.ResourceCards[Resources.WHEAT] != 0:
                 villages = self.getAvailableVillagePositions()
                 for village in villages:
                     legalMoves.append((methods["buildObject"], [Objects.VILLAGE, village]))
 
-            if player.getResourceCards()[Resources.ORE] >= 3 and player.getResourceCards()[Resources.WHEAT] >= 2:
+            if player.ResourceCards[Resources.ORE] >= 3 and player.ResourceCards[Resources.WHEAT] >= 2:
                 cities = self.getAvailableCityPositions()
                 for city in cities:
                     legalMoves.append((methods["buildObject"], [Objects.CITY, city]))
             # draw dev
-            if player.getResourceCards()[Resources.ORE] != 0 and player.getResourceCards()[Resources.WHEAT] != 0 and player.getResourceCards()[Resources.SHEEP] != 0:
+            if player.ResourceCards[Resources.ORE] != 0 and player.ResourceCards[Resources.WHEAT] != 0 and player.ResourceCards[Resources.SHEEP] != 0:
                 legalMoves.append((methods["drawDevCard"], []))
             # trade
         return legalMoves
@@ -267,6 +257,35 @@ class Simulation:
 
 if __name__ == "__main__":
     sim = Simulation()
+
+    sim.priorityRoll(3)
+    # round 0
+    res = [(Resources.WOOD, 10), (Resources.CLAY, 10), (Resources.WHEAT, 10), (Resources.SHEEP, 10), (Resources.ORE, 10)]
+    for i in res:
+        sim.giveResourceCards(sim.getCurrentPlayer().Name, i[0], i[1])
+    sim.buildObject(Objects.VILLAGE, (10, 11, 17))
+    sim.buildObject(Objects.VILLAGE, (18, 24, 25))
+    sim.buildObject(Objects.STREET, (10, 17))
+    sim.buildObject(Objects.STREET, (24, 25))
+    sim.endOfTurn()
+    for i in res:
+        sim.giveResourceCards(sim.getCurrentPlayer().Name, i[0], i[1])
+    sim.buildObject(Objects.VILLAGE, (23, 24, 29))
+    sim.buildObject(Objects.VILLAGE, (12, 13, 19))
+    sim.buildObject(Objects.STREET, (13, 19))
+    sim.buildObject(Objects.STREET, (23, 24))
+    sim.endOfTurn()
+    for i in res:
+        sim.giveResourceCards(sim.getCurrentPlayer().Name, i[0], i[1])
+    sim.buildObject(Objects.VILLAGE, (29, 33, 34))
+    sim.buildObject(Objects.VILLAGE, (30, 34, 35))
+    sim.buildObject(Objects.STREET, (29, 33))
+    sim.buildObject(Objects.STREET, (30, 34))
+    sim.endOfTurn()
+    sim.save("saves/gs1")
+    print(sim.JarvisVision.Diced)
+
+
     sim.load("saves/gs1")
 
     print("Round:" + str(sim.getRound()))
@@ -290,35 +309,3 @@ if __name__ == "__main__":
     # print(sim.getLegalMoves())
     sim.endOfTurn()
     # print(sim.getLegalMoves())
-
-
-'''
-Code zu GS1:
-    sim.priorityRoll(3)
-    # round 0
-    res = [(Resources.WOOD, 10), (Resources.CLAY, 10), (Resources.WHEAT, 10), (Resources.SHEEP, 10), (Resources.ORE, 10)]
-    for i in res:
-        sim.giveResourceCards(sim.getCurrentPlayer().getName(), i[0], i[1])
-    sim.buildObject(Objects.VILLAGE, (10, 11, 17))
-    sim.buildObject(Objects.VILLAGE, (18, 24, 25))
-    sim.buildObject(Objects.STREET, (10, 17))
-    sim.buildObject(Objects.STREET, (24, 25))
-    sim.endOfTurn()
-    for i in res:
-        sim.giveResourceCards(sim.getCurrentPlayer().getName(), i[0], i[1])
-    sim.buildObject(Objects.VILLAGE, (23, 24, 29))
-    sim.buildObject(Objects.VILLAGE, (12, 13, 19))
-    sim.buildObject(Objects.STREET, (13, 19))
-    sim.buildObject(Objects.STREET, (23, 24))
-    sim.endOfTurn()
-    for i in res:
-        sim.giveResourceCards(sim.getCurrentPlayer().getName(), i[0], i[1])
-    sim.buildObject(Objects.VILLAGE, (29, 33, 34))
-    sim.buildObject(Objects.VILLAGE, (30, 34, 35))
-    sim.buildObject(Objects.STREET, (29, 33))
-    sim.buildObject(Objects.STREET, (30, 34))
-    sim.endOfTurn()
-    sim.save("gs1")
-    print(sim.JarvisVision.Diced)
-'''
-

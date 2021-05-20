@@ -23,35 +23,6 @@ class Player:
         self.VictoryPoints = 0
         self.PlayedKnightCards = 0
 
-    # ---- getter ----
-    def getName(self):
-        return self.Name
-
-    def getPriority(self):
-        return self.Priority
-
-    def getAvailableObjects(self):
-        return self.AvailableObjects
-
-    def getResourceCards(self):
-        return self.ResourceCards
-
-    def getDevelopmentCards(self):
-        return self.DevelopmentCards
-
-    def getVictoryPoints(self):
-        return self.VictoryPoints
-
-    def getPlayedKnightCards(self):
-        return self.playedKnightCards
-
-    # ---- setter ----
-    def setName(self, name):
-        self.Name = name
-
-    def setPriority(self, prio):
-        self.Priority = prio
-
     # ---- initialization ----
     def initializeAvailableObjects(self):
         availableObjects = {
@@ -92,23 +63,24 @@ class Player:
                     del self.DevelopmentCards[self.DevelopmentCards.index(developmentCard)]
                     return 1
         else:
-            self.getDevelopmentCards().append((card, round))
+            self.DevelopmentCards.append((card, round))
 
     def updateVictoryPoints(self, flag=0):
         if flag == 1:
-            assert self.getVictoryPoints() > 0, "0 points"
+            assert self.VictoryPoints > 0, "0 points"
             self.VictoryPoints -= 1
         else:
             self.VictoryPoints += 1
-            if self.getVictoryPoints() >= 10:
-                print(self.getName + "hat gewonnen!")
+            if self.VictoryPoints >= 10:
+                print(self.Name + "hat gewonnen!")
 
     def updatePlayedKnightCards(self):
         self.playedKnightCards += 1
 
+    # ---- ----
     def check7(self):
         sum = 0
-        for card in self.getResourceCards().values():
+        for card in self.ResourceCards.values():
             sum += card
         if sum > 7:
             for i in range(int(sum / 2)):
@@ -117,35 +89,32 @@ class Player:
 
     def getRandomResourceCard(self):
         sum = 0
-        for i in self.getResourceCards().values():
+        for i in self.ResourceCards.values():
             sum += i
         rand = random.randrange(sum)
-        for k, v in self.getResourceCards().items():
+        for k, v in self.ResourceCards.items():
             if rand > v:
                 rand -= v
             else:
                 return k
 
     def chooseDevCard(self):
-        if len(self.getDevelopmentCards()) != 0:
-            print(self.getDevelopmentCards())
-            print("0 - " + str(len(self.getDevelopmentCards())))
+        if len(self.DevelopmentCards) != 0:
+            print(self.DevelopmentCards)
+            print("0 - " + str(len(self.DevelopmentCards)))
             try:
                 cardIndex = int(input())
             except ValueError:
                 self.chooseDevCard()
             else:
                 try:
-                    card = self.getDevelopmentCards()[cardIndex][0]
+                    card = self.DevelopmentCards[cardIndex][0]
                 except IndexError:
                     self.chooseDevCard
                 else:
                     return card
 
-    def getPossibleBuildings(self):
-        pass
-
 
 if __name__ == "__main__":
     jakob = Player("jakob")
-    print(jakob.getResourceCards())
+    print(jakob.ResourceCards)

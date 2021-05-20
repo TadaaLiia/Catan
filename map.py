@@ -1,10 +1,11 @@
 import random
 from entities import *
+from player import *
 
 
-class CatanMap:
+class Map:
     """
-    Representation and geeration of the board
+    Representation and generation of the board
     - BanditPosition: int, tileNumber
     - Adjacency: Matrix(36x36), adjacent tiles
     - AvailableNodes: List, availableNodes(x,y,z)
@@ -19,28 +20,9 @@ class CatanMap:
         self.BanditPosition = 0
         self.Adjacency = self.generateAdjacency()
         self.AvailableNodes = self.generateNodeList()
-        self.TileList = self.generateMap()
-        self.ObjectList = []
+        self.TileList = self.generateTileList()
         self.PortDict = self.initializePortDict()
-
-    # ---- getter ----
-    def getBanditPosition(self):
-        return self.BanditPosition
-
-    def getAdjacency(self):
-        return self.Adjacency
-
-    def getAvailableNodes(self):
-        return self.AvailableNodes
-
-    def getTileList(self):
-        return self.TileList
-
-    def getObjectList(self):
-        return self.ObjectList
-
-    def getPortDict(self):
-        return self.PortDict
+        self.ObjectList = []
 
     # ---- setter ----
     def setBanditPosition(self, position):
@@ -133,7 +115,7 @@ class CatanMap:
         nodeList = list(set(map(lambda x: tuple(sorted(x)), nodeList)))
         return sorted(nodeList)
 
-    def generateMap(self, seed=None):
+    def generateTileList(self, seed=None):
         """
         returns TileList: TileType and Number
         """
@@ -212,7 +194,7 @@ class CatanMap:
         }
         return portDict
 
-    # ---- Objects
+    # ---- Objects ----
     def updateAvailableNodes(self, position):
         """
         updates available nodes depending on input position, deletes up to 3 adjacent nodes to position
@@ -220,7 +202,7 @@ class CatanMap:
         # sorted position
         pos = tuple(sorted(position))
         # valid position?
-        nodes = self.getAvailableNodes()
+        nodes = self.AvailableNodes
         assert pos in nodes, "invalid village position"
         # delete position and 2 or 3 adjacent poitions
         nodes.remove(pos)
@@ -237,7 +219,7 @@ class CatanMap:
         """
         returns objects of player
         """
-        objects = [x for x in self.getObjectList() if x["player"] == player]
+        objects = [x for x in self.ObjectList if x["player"] == player]
         buildings = [x["position"] for x in objects if x["type"] != Objects.STREET]
         streets = [x["position"] for x in objects if x["type"] == Objects.STREET]
         return objects, buildings, streets
@@ -246,7 +228,7 @@ class CatanMap:
         # All player Objects
         playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
         # Streets
-        allStreets = [x["position"] for x in self.getObjectList() if x["type"] == Objects.STREET]
+        allStreets = [x["position"] for x in self.ObjectList if x["type"] == Objects.STREET]
         # Streets around Cities and Villages
         availableStreets = []
         for b in playerBuildings:
@@ -257,24 +239,24 @@ class CatanMap:
         for street in playerStreets:
             for x in range(37):
                 # common neighbors
-                if self.getAdjacency()[street[0]][x] == 1 and self.getAdjacency()[street[1]][x] == 1:
+                if self.Adjacency[street[0]][x] == 1 and self.Adjacency[street[1]][x] == 1:
                     availableStreets.append((x, street[0]))
                     availableStreets.append((x, street[1]))
         # remove Streets in Oceans or unavailable streets
         final = []
         for street in availableStreets:
-            if self.getAdjacency()[street[0]][street[1]] == 1 and street not in allStreets:
+            if self.Adjacency[street[0]][street[1]] == 1 and street not in allStreets:
                 final.append(tuple(sorted(street)))
         final = list(dict.fromkeys(final))
         return sorted(final)
 
     def getAvailableVillages(self, player, round=1):
         if round == 0:
-            return self.getAvailableNodes()
+            return self.AvailableNodes
         else:
             playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
             availableVillages = []
-            for node in self.getAvailableNodes():
+            for node in self.AvailableNodes:
                 # angrenzende strasse an nodes
                 if (node[0], node[1]) in playerStreets or (node[0], node[2]) in playerStreets or (node[1], node[2]) in playerStreets:
                     availableVillages.append(node)
@@ -312,14 +294,14 @@ class CatanMap:
     def getTilesForValue(self, value):
         tiles = []
         i = 0
-        for tile in self.getTileList():
-            if tile[1] == value and self.getBanditPosition() != i:
+        for tile in self.TileList:
+            if tile[1] == value and self.BanditPosition != i:
                 tiles.append((i, tile[0]))
             i += 1
         return(tiles)
 
     def getVillagesForTile(self, tile):
-        allVillages = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == Objects.VILLAGE]
+        allVillages = [(x["player"], x["position"]) for x in self.ObjectList if x["type"] == Objects.VILLAGE]
         villages = []
         for v in allVillages:
             if v[1][0] == tile or v[1][1] == tile or v[1][2] == tile:
@@ -327,7 +309,7 @@ class CatanMap:
         return villages
 
     def getCitiesForTile(self, tile):
-        allCities = [(x["player"], x["position"]) for x in self.getObjectList() if x["type"] == Objects.CITY]
+        allCities = [(x["player"], x["position"]) for x in self.ObjectList if x["type"] == Objects.CITY]
         cities = []
         for c in allCities:
             if c[1][0] == tile or c[1][1] == tile or c[1][2] == tile:
@@ -336,8 +318,8 @@ class CatanMap:
 
 
 if __name__ == "__main__":
-    cmap = CatanMap()
-    print(cmap.getTileList())
+    cmap = Map()
+    print(cmap.TileList)
     cmap.buildStuff("jamoinmoritz", Objects.VILLAGE, (10, 11, 17), 0)
     cmap.buildStuff("jamoinmoritz", Objects.VILLAGE, (18, 24, 25), 0)
     cmap.buildStuff("jamoinmoritz", Objects.STREET, (10, 17), 0)
