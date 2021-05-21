@@ -184,7 +184,7 @@ class Board():
         self.nodes = {}
         self.simulation = simulation.Simulation()
         self.simulation.load("saves/gs1")
-        self.drawGamestate(self.simulation.JarvisVision)
+        self.drawGamestate(self.simulation.GS)
         self.b1 = button(self.screen, (1000, 900), "  :)  ")
         self.gameloop()
 
@@ -193,12 +193,12 @@ class Board():
         self.generateBoard(gamestate.Map.TileList)
         self.drawPorts()
         for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.ObjectList if obj["type"] == Objects.STREET]:
-            self.buildStreet(street[0], self.getColorForName(street[1]))
+            self.buildStreet(street[0], self.getColorForID(street[1]))
         for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.ObjectList if obj["type"] == Objects.CITY]:
-            self.buildCity(street[0], self.getColorForName(street[1]))
+            self.buildCity(street[0], self.getColorForID(street[1]))
         for street in [(obj["position"], obj["player"]) for obj in gamestate.Map.ObjectList if obj["type"] == Objects.VILLAGE]:
-            self.buildVillage(street[0], self.getColorForName(street[1]))
-        self.drawBandit(self.simulation.JarvisVision.Map.BanditPosition)
+            self.buildVillage(street[0], self.getColorForID(street[1]))
+        self.drawBandit(self.simulation.GS.Map.BanditPosition)
         self.b1 = button(self.screen, (1000, 900), "  :)  ")
 
     def buildStreet(self, pos, color):
@@ -306,7 +306,7 @@ class Board():
             intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()))
             # draw text
             for hex in hexes:
-                if self.simulation.JarvisVision.Map.TileList[hex.id][0] == Tiles.OCEAN:
+                if self.simulation.GS.Map.TileList[hex.id][0] == Tiles.OCEAN:
                     hex._drawText(self.screen, self.game_font_ports, "3:1", DARK_BLUE)
             # draw the Street
             pygame.draw.line(self.screen, DARK_BLUE, intersecting_coordinates[0], intersecting_coordinates[1], width=11)
@@ -318,7 +318,7 @@ class Board():
             # draw text
             text = "2:1 " + port[2].name
             for hex in hexes:
-                if self.simulation.JarvisVision.Map.TileList[hex.id][0] == Tiles.OCEAN:
+                if self.simulation.GS.Map.TileList[hex.id][0] == Tiles.OCEAN:
                     hex._drawText(self.screen, self.game_font_ports, text, DARK_BLUE)
             # draw the Street
             pygame.draw.line(self.screen, DARK_BLUE, intersecting_coordinates[0], intersecting_coordinates[1], width=11)
@@ -348,7 +348,7 @@ class Board():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.b1.collidepoint(pygame.mouse.get_pos()):
                         self.simulation.getNextGamestate(self.simulation.getRandomLegalMove())
-                        self.drawGamestate(self.simulation.JarvisVision)
+                        self.drawGamestate(self.simulation.GS)
                 if event.type == KEYDOWN:
                     if event.key == K_BACKSPACE:
                         # reset board
@@ -368,8 +368,8 @@ class Board():
                 pygame.display.flip()
 
     # Playerinteraction
-    def getColorForName(self, playerName):
-        prio = self.simulation.JarvisVision.getPlayerForName(playerName).Priority
+    def getColorForID(self, id):
+        prio = self.simulation.getPlayerForID(id).Priority
         return PlayerColor(prio).name
 
 

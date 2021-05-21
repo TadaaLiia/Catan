@@ -7,13 +7,25 @@ import pickle
 class Simulation:
 
     def __init__(self, player=4):
-        self.JarvisVision = Gamestate("a", "b", "c", "d")
+        self.GS = Gamestate(player)
+        self.priorityRoll()
 
+    # ---- initialisation ----
+    def priorityRoll(self):
+        player = self.GS.Player
+        begin = random.randrange(player)
+        self.GS.Psuesch1.Priority = (1 + begin) % player
+        self.GS.Psuesch2.Priority = (2 + begin) % player
+        self.GS.Psuesch3.Priority = (3 + begin) % player
+        if player == 4:
+            self.GS.Psuesch4.Priority = (4 + begin) % player
+
+    # ---- load, safe Gamestate ----
     def save(self, filename):
         # create a pickle file
         picklefile = open(filename, 'wb')
         # pickle the dictionary and write it to file
-        pickle.dump(self.JarvisVision, picklefile)
+        pickle.dump(self.GS, picklefile)
         # close the file
         picklefile.close()
 
@@ -21,178 +33,208 @@ class Simulation:
         # read the pickle file
         picklefile = open(filename, 'rb')
         # unpickle the dataframe
-        self.JarvisVision = pickle.load(picklefile)
+        self.GS = pickle.load(picklefile)
         # close file
         picklefile.close()
 
-    # ---- turn ----
+    # ---- round ----
+    def getRound(self):
+        return self.GS.Round
 
-    def inputCheck(self):
-        try:
-            i = int(input("> "))
-        except ValueError:
-            i = self.inputCheck()
-        return i
-
-    def roll(self):
-        r = random.randrange(1, 7) + random.randrange(1, 7)
-        if r != 7:
-            self.handOutCards(r)
-        else:
-            self.JarvisVision.Roll7 = 1
-            # self.roll7(self.getCurrentPlayer())
-        self.JarvisVision.Diced = 1
+    def getCurrentPlayer(self):
+        # current player <=> turn == priority
+        for player in self.GS.PlayerList:
+            if self.GS.Turn == player.Priority:
+                return player
 
     def endOfTurn(self):
         '''
         increments turn and round, updates CurrentPlayer
         '''
-        self.JarvisVision.updateTurnPlayer()
-        self.JarvisVision.PlayedDev = 0
-        self.JarvisVision.Diced = 0
+        self.GS.Turn = (self.GS.Turn + 1) % self.GS.Player
+        if self.GS.Turn == 0:
+            # inc Round
+            self.GS.Round += 1
+        self.GS.PlayedDev = 0
+        self.GS.Diced = 0
+        self.GS.Roll7 = 0
+
+    # ---- turn ----
+    def roll(self):
+        r = random.randrange(1, 7) + random.randrange(1, 7)
+        if r != 7:
+            self.handOutCards(r)
+        else:
+            self.GS.Roll7 = 1
+            # self.roll7(self.getCurrentPlayer())
+        self.GS.Diced = 1
 
     def roll7(self, position=0):
-        self.bandit(position)
-        villages = self.JarvisVision.Map.getVillagesForTile(position)
-        cities = self.JarvisVision.Map.getCitiesForTile(position)
+        self.setBanditPosition(position)
+        villages = self.GS.Map.getVillagesForTile(position)
+        cities = self.GS.Map.getCitiesForTile(position)
         players = list(dict.fromkeys(villages + cities))
-        for player in players:
-            card = player.getRandomResourceCard()
-            self.removeResourceCards(player, card)
-            self.giveResourceCards(self.getCurrentPlayer().Name, card)
-        self.JarvisVision.Roll7 == 0
-
-    # ---- Interaction with JarvisVision
-
-    def getRound(self):
-        return self.JarvisVision.Round
-
-    def getCurrentPlayer(self):
-        return self.JarvisVision.OhHiMarc
+        for id in players:
+            card = self.getPlayerForID(id).getRandomResourceCard()
+            self.removeResourceCards(id, card)
+            self.giveResourceCards(self.getCurrentPlayer().ID, card)
+        self.GS.Roll7 == 0
 
     # ---- Interaction with Map ----
     def getObjectList(self):
-        return self.JarvisVision.Map.ObjectList
+        return self.GS.Map.ObjectList
 
     def getAvailableStreetPositions(self):
-        return self.JarvisVision.Map.getAvailableStreets(self.getCurrentPlayer().Name)
+        return self.GS.Map.getAvailableStreets(self.getCurrentPlayer().ID)
 
     def getAvailableVillagePositions(self):
-        return self.JarvisVision.Map.getAvailableVillages(self.getCurrentPlayer().Name, self.getRound())
+        return self.GS.Map.getAvailableVillages(self.getCurrentPlayer().ID, self.getRound())
 
     def getAvailableCityPositions(self):
-        return self.JarvisVision.Map.getAvailableCities(self.getCurrentPlayer().Name, self.getRound())
+        return self.GS.Map.getAvailableCities(self.getCurrentPlayer().ID, self.getRound())
 
     def buildObject(self, type, position):
-        playerName = self.getCurrentPlayer().Name
+        id = self.getCurrentPlayer().ID
         player = self.getCurrentPlayer()
         assert type in Objects, "invalid type"
         if type == Objects.STREET:
             assert player.ResourceCards[Resources.WOOD] != 0, "street: missing wood"
             assert player.ResourceCards[Resources.CLAY] != 0, "street: missing clay"
-            self.JarvisVision.Map.buildStuff(
-                playerName, type, position, self.getRound())
-            self.removeResourceCards(playerName, Resources.WOOD)
-            self.removeResourceCards(playerName, Resources.CLAY)
+            self.GS.Map.buildStuff(
+                id, type, position, self.getRound())
+            self.removeResourceCards(id, Resources.WOOD)
+            self.removeResourceCards(id, Resources.CLAY)
         elif type == Objects.VILLAGE:
             assert player.ResourceCards[Resources.WOOD] != 0, "village: missing wood"
             assert player.ResourceCards[Resources.CLAY] != 0, "village: missing clay"
             assert player.ResourceCards[Resources.SHEEP] != 0, "village: missing sheep"
             assert player.ResourceCards[Resources.WHEAT] != 0, "village: missing wheat"
-            self.JarvisVision.Map.buildStuff(
-                playerName, type, position, self.getRound())
-            self.removeResourceCards(playerName, Resources.WOOD)
-            self.removeResourceCards(playerName, Resources.CLAY)
-            self.removeResourceCards(playerName, Resources.SHEEP)
-            self.removeResourceCards(playerName, Resources.WHEAT)
+            self.GS.Map.buildStuff(
+                id, type, position, self.getRound())
+            self.removeResourceCards(id, Resources.WOOD)
+            self.removeResourceCards(id, Resources.CLAY)
+            self.removeResourceCards(id, Resources.SHEEP)
+            self.removeResourceCards(id, Resources.WHEAT)
         elif type == Objects.CITY:
             assert player.ResourceCards[Resources.ORE] >= 3, "city: missing ore"
             assert player.ResourceCards[Resources.WHEAT] >= 2, "city: missing wheat"
-            self.JarvisVision.Map.buildStuff(
-                playerName, type, position, self.getRound())
-            self.removeResourceCards(playerName, Resources.ORE)
-            self.removeResourceCards(playerName, Resources.ORE)
-            self.removeResourceCards(playerName, Resources.ORE)
-            self.removeResourceCards(playerName, Resources.WHEAT)
-            self.removeResourceCards(playerName, Resources.WHEAT)
+            self.GS.Map.buildStuff(
+                id, type, position, self.getRound())
+            self.removeResourceCards(id, Resources.ORE)
+            self.removeResourceCards(id, Resources.ORE)
+            self.removeResourceCards(id, Resources.ORE)
+            self.removeResourceCards(id, Resources.WHEAT)
+            self.removeResourceCards(id, Resources.WHEAT)
 
     def getLegalBanditPositions(self):
         pos = []
-        for count, tile in enumerate(self.JarvisVision.Map.TileList):
+        for count, tile in enumerate(self.GS.Map.TileList):
             if tile[0] != Tiles.OCEAN and tile[0] != Tiles.DESERT:
                 pos.append(count)
-        if self.JarvisVision.Map.BanditPosition in pos:
-            pos.remove(self.JarvisVision.Map.BanditPosition)
+        if self.GS.Map.BanditPosition in pos:
+            pos.remove(self.GS.Map.BanditPosition)
         return pos
 
-    def bandit(self, position):
-        self.JarvisVision.Map.setBanditPosition(position)
+    def setBanditPosition(self, position):
+        self.GS.Map.setBanditPosition(position)
 
     # ---- Interaction with Player ----
-    def priorityRoll(self, player=4):
-        begin = random.randrange(player)
-        self.JarvisVision.Psuesch1.Priority = (1 + begin) % player
-        self.JarvisVision.Psuesch2.Priority = (2 + begin) % player
-        self.JarvisVision.Psuesch3.Priority = (3 + begin) % player
-        if player == 4:
-            self.JarvisVision.Psuesch4.Priority = (4 + begin) % player
-        self.JarvisVision.nextCurrentPlayer()
+    def getPlayerForID(self, id):
+        if self.GS.Psuesch1.ID == id:
+            return self.GS.Psuesch1
+        elif self.GS.Psuesch2.ID == id:
+            return self.GS.Psuesch2
+        elif self.GS.Psuesch3.ID == id:
+            return self.GS.Psuesch3
+        elif self.GS.Player == 4 and self.GS.Psuesch4.ID == id:
+            return self.GS.Psuesch4
+        else:
+            print(str(id))
 
-    def giveResourceCards(self, playerName, card, count=1):
+    def giveResourceCards(self, id, card, count=1):
         for i in range(count):
-            self.JarvisVision.getPlayerForName(
-                playerName).updateResourceCards(card, 1)
+            self.getPlayerForID(
+                id).updateResourceCards(card, 1)
 
-    def removeResourceCards(self, playerName, card, count=1):
+    def removeResourceCards(self, id, card, count=1):
         for i in range(count):
-            self.JarvisVision.getPlayerForName(
-                playerName).updateResourceCards(card, 0)
+            self.getPlayerForID(
+                id).updateResourceCards(card, 0)
 
     def handOutCards(self, roll):
-        tiles = self.JarvisVision.Map.getTilesForValue(roll)
-        players = self.JarvisVision.PlayerList
+        tiles = self.GS.Map.getTilesForValue(roll)
+        players = self.GS.PlayerList
         for tile in tiles:
-            villages = self.JarvisVision.Map.getVillagesForTile(tile[0])
-            cities = self.JarvisVision.Map.getCitiesForTile(tile[0])
+            villages = self.GS.Map.getVillagesForTile(tile[0])
+            cities = self.GS.Map.getCitiesForTile(tile[0])
             for player in players:
                 for v in villages:
-                    if v == player.Name:
-                        self.giveResourceCards(player.Name, tile[1])
+                    if v == player.ID:
+                        self.giveResourceCards(player.ID, tile[1])
                 for c in cities:
-                    if c == player.Name:
-                        self.giveResourceCards(player.Name, tile[1], 2)
+                    if c == player.ID:
+                        self.giveResourceCards(player.ID, tile[1], 2)
 
     def drawDevelopmentCard(self):
-        playerName = self.getCurrentPlayer().Name
+        id = self.getCurrentPlayer().ID
         assert self.getCurrentPlayer().ResourceCards[
             Resources.SHEEP] != 0, "missing sheep"
         assert self.getCurrentPlayer().ResourceCards[
             Resources.ORE] != 0, "missing ore"
         assert self.getCurrentPlayer().ResourceCards[
             Resources.WHEAT] != 0, "missing wheat"
-        card = self.JarvisVision.getRandomDevCard()
-        self.removeResourceCards(playerName, Resources.SHEEP)
-        self.removeResourceCards(playerName, Resources.ORE)
-        self.removeResourceCards(playerName, Resources.WHEAT)
-        self.JarvisVision.OhHiMarc.updateDevelopmentCards(card, self.getRound())
+        card = self.GS.getRandomDevCard()
+        self.removeResourceCards(id, Resources.SHEEP)
+        self.removeResourceCards(id, Resources.ORE)
+        self.removeResourceCards(id, Resources.WHEAT)
+        self.getCurrentPlayer().updateDevelopmentCards(card, self.getRound())
 
-    def playDevelopmentCard(self, devCard):
-        playerName = self.getCurrentPlayer().Name
+    def playDevelopmentCard(self, devCard, arg1=0, arg2=0):
+        id = self.getCurrentPlayer().ID
         r = self.getCurrentPlayer().updateDevelopmentCards(devCard, self.getRound(), 1)
         if r == 1:
             if devCard == DevelopmentCards.KNIGHT_CARD:
-                self.JarvisVision.KNIGHTCARD(playerName)
+                self.KNIGHTCARD(id, arg1)
             elif devCard == DevelopmentCards.VICTORY_POINT_CARD:
-                self.JarvisVision.VICTORYPOINTCARD(playerName)
+                self.VICTORYPOINTCARD(id)
             elif devCard == DevelopmentCards.MONOPOLY:
-                self.JarvisVision.MONOPOLY(playerName)
+                self.MONOPOLY(id, arg1)
             elif devCard == DevelopmentCards.DEVELOPMENT:
-                self.JarvisVision.DEVELOPMENT(playerName)
+                self.DEVELOPMENT(id, arg1, arg2)
             elif devCard == DevelopmentCards.CONSTRUCTION:
-                self.JarvisVision.CONSTRUCTION(playerName)
+                self.CONSTRUCTION(id, arg1, arg2)
 
-    def getPlayerForName(self, name):
-        return self.JarvisVision.getPlayerForName(name)
+    # ---- Development cards ----
+    def KNIGHTCARD(self, id, position):
+        # BanditPosition
+        self.GS.Map.setBanditPosition(position)
+        # Increment played knights
+        self.getPlayerForID(id).PlayedKnightCards += 1
+
+    def VICTORYPOINTCARD(self, id):
+        # increments VictoryPoints
+        self.getPlayerForID(id).updateVictoryPoints()
+
+    def CONSTRUCTION(self, id, position1, position2):
+        # builds two streets
+        self.GS.Map.buildStuff(id, Objects.STREET, position1, self.getRound())
+        self.GS.Map.buildStuff(id, Objects.STREET, position2, self.getRound())
+
+    def MONOPOLY(self, id, resourceCard):
+        # all players
+        for sum, player in enumerate(self.GS.PlayerList):
+            # resourceCards[card] = 0
+            i = player.ResourceCards[resourceCard]
+            for j in range(i):
+                player.updateResourceCards(resourceCard, 0)
+        for i in range(sum):
+            # resourceCards[card] = x
+            self.getPlayerForID(id).updateResourceCards(resourceCard, 1)
+
+    def DEVELOPMENT(self, id, resourceCard1, resourceCard2):
+        # adds two resource cards
+        self.getPlayerForID(id).updateResourceCards(resourceCard1, 1)
+        self.getPlayerForID(id).updateResourceCards(resourceCard2, 1)
 
     # ---- interaction with Bot ----
 
@@ -209,20 +251,24 @@ class Simulation:
         player = self.getCurrentPlayer()
 
         devCards = []
-        if self.JarvisVision.PlayedDev == 0:
+        if self.GS.PlayedDev == 0:
             for card in player.DevelopmentCards:
                 if card[1] != self.getRound():
                     devCards.append(card[0])
 
-        legalMoves.extend([(methods["playDevCard"], [card]) for card in devCards if (
-            card == DevelopmentCards.KNIGHT_CARD or self.JarvisVision.Diced != 0)])
+        # legalMoves.extend([(methods["playDevCard"], [card]) for card in devCards if (
+        #    card == DevelopmentCards.KNIGHT_CARD or self.GS.Diced != 0)])
 
-        if self.JarvisVision.Diced == 0:
+        if self.GS.Diced == 0:
             legalMoves.append((methods["roll"], []))
-        # elif self.JarvisVision.Roll7 == 1:
+        # elif self.GS.Roll7 == 1:
         #    positions = self.getLegalBanditPositions()
         #    rand = random.randrange(len(positions))
         #    legalMoves.append((methods["roll7"], positions[rand]))
+        elif self.GS.Roll7 == 1:
+            for pos in self.getLegalBanditPositions():
+                legalMoves.append((methods["roll7"], [pos]))
+            self.GS.Roll7 = 0
         else:
             legalMoves.append((methods["endOfTurn"], []))
             # build
@@ -243,48 +289,69 @@ class Simulation:
             # draw dev
             if player.ResourceCards[Resources.ORE] != 0 and player.ResourceCards[Resources.WHEAT] != 0 and player.ResourceCards[Resources.SHEEP] != 0:
                 legalMoves.append((methods["drawDevCard"], []))
-            # trade
+
+            for card in devCards:
+                if (card == DevelopmentCards.KNIGHT_CARD):
+                    for pos in self.getLegalBanditPositions():
+                        legalMoves.append((methods["playDevCard"], [card, pos]))
+                elif (card == DevelopmentCards.VICTORY_POINT_CARD):
+                    legalMoves.append((methods["playDevCard"], [card]))
+                elif (card == DevelopmentCards.CONSTRUCTION):
+                    for street in self.getAvailableStreetPositions():
+                        s = self.getAvailableStreetPositions()
+                        s.remove(street)
+                        for street2 in self.getAvailableStreetPositions():
+                            legalMoves.append((methods["playDevCard"], [card, street, street2]))
+                elif (card == DevelopmentCards.DEVELOPMENT):
+                    for res in Resources:
+                        for res2 in Resources:
+                            legalMoves.append((methods["playDevCard"], [card, res, res2]))
+                elif (card == DevelopmentCards.MONOPOLY):
+                    for res in Resources:
+                        legalMoves.append((methods["playDevCard"], [card, res]))
         return legalMoves
 
     def getRandomLegalMove(self):
         legalMoves = self.getLegalMoves()
-        rand = random.randrange(len(legalMoves))
-        return legalMoves[rand]
+        a = random.choice(legalMoves)
+        print("random:" + str(a))
+        return a
 
     def getNextGamestate(self, legalMove):
+        print("move:" + str(legalMove[0]))
+        print("param:" + str(legalMove[1]))
         legalMove[0](*legalMove[1])
-        # return self.JarvisVision
+        # return self.GS
+
 
 if __name__ == "__main__":
-    sim = Simulation()
+    sim = Simulation(3)
 
-    sim.priorityRoll(3)
     # round 0
     res = [(Resources.WOOD, 10), (Resources.CLAY, 10), (Resources.WHEAT, 10), (Resources.SHEEP, 10), (Resources.ORE, 10)]
     for i in res:
-        sim.giveResourceCards(sim.getCurrentPlayer().Name, i[0], i[1])
+        sim.giveResourceCards(sim.getCurrentPlayer().ID, i[0], i[1])
     sim.buildObject(Objects.VILLAGE, (10, 11, 17))
     sim.buildObject(Objects.VILLAGE, (18, 24, 25))
     sim.buildObject(Objects.STREET, (10, 17))
     sim.buildObject(Objects.STREET, (24, 25))
     sim.endOfTurn()
     for i in res:
-        sim.giveResourceCards(sim.getCurrentPlayer().Name, i[0], i[1])
+        sim.giveResourceCards(sim.getCurrentPlayer().ID, i[0], i[1])
     sim.buildObject(Objects.VILLAGE, (23, 24, 29))
     sim.buildObject(Objects.VILLAGE, (12, 13, 19))
     sim.buildObject(Objects.STREET, (13, 19))
     sim.buildObject(Objects.STREET, (23, 24))
     sim.endOfTurn()
     for i in res:
-        sim.giveResourceCards(sim.getCurrentPlayer().Name, i[0], i[1])
+        sim.giveResourceCards(sim.getCurrentPlayer().ID, i[0], i[1])
     sim.buildObject(Objects.VILLAGE, (29, 33, 34))
     sim.buildObject(Objects.VILLAGE, (30, 34, 35))
     sim.buildObject(Objects.STREET, (29, 33))
     sim.buildObject(Objects.STREET, (30, 34))
     sim.endOfTurn()
     sim.save("saves/gs1")
-    print(sim.JarvisVision.Diced)
-
+    print(sim.GS.Diced)
 
     sim.load("saves/gs1")
 
@@ -292,20 +359,24 @@ if __name__ == "__main__":
     sim.drawDevelopmentCard()
     sim.drawDevelopmentCard()
     sim.getNextGamestate(sim.getRandomLegalMove())
-    #print(sim.getLegalMoves())
 
     sim.endOfTurn()
-    sim.getRandomLegalMove()
-    # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
+    sim.getNextGamestate(sim.getRandomLegalMove())
     sim.endOfTurn()
-    sim.getRandomLegalMove()
-    # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
+    sim.getNextGamestate(sim.getRandomLegalMove())
     sim.endOfTurn()
-    sim.getRandomLegalMove()
-    # sim.JarvisVision.getPortsForPlayer(sim.getCurrentPlayer().getName())
-    #print(sim.getLegalMoves())
-    sim.roll()
-    sim.getRandomLegalMove()
-    # print(sim.getLegalMoves())
+
+    sim.getNextGamestate(sim.getRandomLegalMove())
+    sim.getNextGamestate(sim.getRandomLegalMove())
     sim.endOfTurn()
-    # print(sim.getLegalMoves())
+    print(sim.getRound())
+
+    # ---- turn ----
+    """
+    def inputCheck(self):
+        try:
+            i = int(input("> "))
+        except ValueError:
+            i = self.inputCheck()
+        return i
+    """

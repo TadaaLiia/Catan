@@ -14,31 +14,24 @@ class Player:
     - updateDevelopmentCards: +/- Card
     """
 
-    def __init__(self, name):
-        self.Name = name
+    def __init__(self, id):
+        self.ID = id
         self.Priority = 0
-        self.AvailableObjects = self.initializeAvailableObjects()
-        self.ResourceCards = self.initializeResourceCards()
-        self.DevelopmentCards = []
-        self.VictoryPoints = 0
-        self.PlayedKnightCards = 0
-
-    # ---- initialization ----
-    def initializeAvailableObjects(self):
-        availableObjects = {
+        self.AvailableObjects = {
             Objects.CITY: 4,
             Objects.VILLAGE: 5,
             Objects.STREET: 15
         }
-        return availableObjects
-
-    def initializeResourceCards(self):
-        return dict.fromkeys(Resources, 0)
+        self.ResourceCards = dict.fromkeys(Resources, 0)
+        self.DevelopmentCards = []
+        self.VictoryPoints = 0
+        self.PlayedKnightCards = 0
 
     # ---- update ----
     def updateAvailableObjects(self, object, flag=0):
+        # flag = 0: remove Object
+        # flag = 1: add Object
         assert object in self.AvailableObjects, "invalid object"
-
         if flag == 1 and object == Objects.VILLAGE:
             assert self.AvailableObjects[object] < 15, "invalid operation"
             self.AvailableObjects[object] += 1
@@ -47,6 +40,8 @@ class Player:
             self.AvailableObjects[object] -= 1
 
     def updateResourceCards(self, card, flag=0):
+        # flag = 0: remove card
+        # flag = 1: add card
         if flag == 1:
             self.ResourceCards[card] += 1
         else:
@@ -54,6 +49,8 @@ class Player:
             self.ResourceCards[card] -= 1
 
     def updateDevelopmentCards(self, card, round, flag=0):
+        # flag = 0: add card
+        # flag = 1: remove card
         if flag == 1:
             if card not in [x[0] for x in self.DevelopmentCards if x[1] < round]:
                 print("you dont own this card")
@@ -66,31 +63,35 @@ class Player:
             self.DevelopmentCards.append((card, round))
 
     def updateVictoryPoints(self, flag=0):
+        # flag = 0: dec Points
+        # flag = 1: inc Points
         if flag == 1:
             assert self.VictoryPoints > 0, "0 points"
             self.VictoryPoints -= 1
         else:
             self.VictoryPoints += 1
             if self.VictoryPoints >= 10:
-                print(self.Name + "hat gewonnen!")
+                print(str(self.ID) + "hat gewonnen!")
 
-    def updatePlayedKnightCards(self):
-        self.playedKnightCards += 1
-
-    # ---- ----
+    # ---- check ----
     def check7(self):
-        sum = 0
-        for card in self.ResourceCards.values():
-            sum += card
-        if sum > 7:
-            for i in range(int(sum / 2)):
-                randomCard = self.getRandomResourceCard()
-                self.updateResourceCards(randomCard)
-
-    def getRandomResourceCard(self):
+        # number ob resource cards
         sum = 0
         for i in self.ResourceCards.values():
             sum += i
+        # remove half of the cards
+        if sum > 7:
+            for j in range(int(sum / 2)):
+                randomCard = self.getRandomResourceCard()
+                self.updateResourceCards(randomCard)
+
+    # ---- getter ----
+    def getRandomResourceCard(self):
+        # number of resource cards
+        sum = 0
+        for i in self.ResourceCards.values():
+            sum += i
+        # return random card
         rand = random.randrange(sum)
         for k, v in self.ResourceCards.items():
             if rand > v:
@@ -98,6 +99,7 @@ class Player:
             else:
                 return k
 
+    '''
     def chooseDevCard(self):
         if len(self.DevelopmentCards) != 0:
             print(self.DevelopmentCards)
@@ -113,8 +115,8 @@ class Player:
                     self.chooseDevCard
                 else:
                     return card
+    '''
 
 
 if __name__ == "__main__":
-    jakob = Player("jakob")
-    print(jakob.ResourceCards)
+    jakob = Player(0)

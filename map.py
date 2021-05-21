@@ -194,7 +194,7 @@ class Map:
         }
         return portDict
 
-    # ---- Objects ----
+    # ---- Board ----
     def updateAvailableNodes(self, position):
         """
         updates available nodes depending on input position, deletes up to 3 adjacent nodes to position
@@ -215,82 +215,6 @@ class Map:
                 nodes.remove(node)
         self.AvailableNodes = nodes
 
-    def getPlayerShit(self, player):
-        """
-        returns objects of player
-        """
-        objects = [x for x in self.ObjectList if x["player"] == player]
-        buildings = [x["position"] for x in objects if x["type"] != Objects.STREET]
-        streets = [x["position"] for x in objects if x["type"] == Objects.STREET]
-        return objects, buildings, streets
-
-    def getAvailableStreets(self, player):
-        # All player Objects
-        playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
-        # Streets
-        allStreets = [x["position"] for x in self.ObjectList if x["type"] == Objects.STREET]
-        # Streets around Cities and Villages
-        availableStreets = []
-        for b in playerBuildings:
-            availableStreets.append((b[0], b[1]))
-            availableStreets.append((b[0], b[2]))
-            availableStreets.append((b[1], b[2]))
-        # street extension
-        for street in playerStreets:
-            for x in range(37):
-                # common neighbors
-                if self.Adjacency[street[0]][x] == 1 and self.Adjacency[street[1]][x] == 1:
-                    availableStreets.append((x, street[0]))
-                    availableStreets.append((x, street[1]))
-        # remove Streets in Oceans or unavailable streets
-        final = []
-        for street in availableStreets:
-            if self.Adjacency[street[0]][street[1]] == 1 and street not in allStreets:
-                final.append(tuple(sorted(street)))
-        final = list(dict.fromkeys(final))
-        return sorted(final)
-
-    def getAvailableVillages(self, player, round=1):
-        if round == 0:
-            return self.AvailableNodes
-        else:
-            playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
-            availableVillages = []
-            for node in self.AvailableNodes:
-                # angrenzende strasse an nodes
-                if (node[0], node[1]) in playerStreets or (node[0], node[2]) in playerStreets or (node[1], node[2]) in playerStreets:
-                    availableVillages.append(node)
-            return sorted(availableVillages)
-
-    def getAvailableCities(self, player, round=1):
-        assert round != 0, "you are not allowed to build cities."
-        playerObjects, playerBuildings, playerStreets = self.getPlayerShit(player)
-        return [x["position"] for x in playerObjects if x["type"] == Objects.VILLAGE]
-
-    def buildStuff(self, player, type, position, round=1):
-        pos = tuple(sorted(position))
-        # Street -> (x,y) in available streets(player)
-        if type == Objects.STREET:
-            assert len(pos) == 2, "invalid position"
-            assert pos in self.getAvailableStreets(player), "street not available"
-            self.ObjectList.append({"player": player, "type": type, "position": pos})
-        # Village -> (x,y,z) in availableNodes
-        elif type == Objects.VILLAGE:
-            assert len(pos) == 3, "invalid position"
-            assert pos in self.getAvailableVillages(player, round), "node not available or two streets required!"
-            self.ObjectList.append({"player": player, "type": type, "position": pos})
-            self.updateAvailableNodes(pos)
-        # City -> {player,village,(x,y,z)} in ObjectList
-        elif type == Objects.CITY:
-            assert len(pos) == 3, "invalid position"
-            assert pos in self.getAvailableCities(player), "no village available"
-            self.ObjectList.append({"player": player, "type": type, "position": pos})
-            self.ObjectList.remove({"player": player, "type": Objects.VILLAGE, "position": pos})
-        else:
-            print("incorrect type")
-            return
-
-    # ---- Tiles
     def getTilesForValue(self, value):
         tiles = []
         i = 0
@@ -316,15 +240,91 @@ class Map:
                 cities.append(c[0])
         return cities
 
+    # ---- Player ----
+    def getPlayerShit(self, id):
+        """
+        returns objects of player
+        """
+        objects = [x for x in self.ObjectList if x["player"] == id]
+        buildings = [x["position"] for x in objects if x["type"] != Objects.STREET]
+        streets = [x["position"] for x in objects if x["type"] == Objects.STREET]
+        return objects, buildings, streets
+
+    def getAvailableStreets(self, id):
+        # All player Objects
+        playerObjects, playerBuildings, playerStreets = self.getPlayerShit(id)
+        # Streets
+        allStreets = [x["position"] for x in self.ObjectList if x["type"] == Objects.STREET]
+        # Streets around Cities and Villages
+        availableStreets = []
+        for b in playerBuildings:
+            availableStreets.append((b[0], b[1]))
+            availableStreets.append((b[0], b[2]))
+            availableStreets.append((b[1], b[2]))
+        # street extension
+        for street in playerStreets:
+            for x in range(37):
+                # common neighbors
+                if self.Adjacency[street[0]][x] == 1 and self.Adjacency[street[1]][x] == 1:
+                    availableStreets.append((x, street[0]))
+                    availableStreets.append((x, street[1]))
+        # remove Streets in Oceans or unavailable streets
+        final = []
+        for street in availableStreets:
+            if self.Adjacency[street[0]][street[1]] == 1 and street not in allStreets:
+                final.append(tuple(sorted(street)))
+        final = list(dict.fromkeys(final))
+        return sorted(final)
+
+    def getAvailableVillages(self, id, round=1):
+        if round == 0:
+            return self.AvailableNodes
+        else:
+            playerObjects, playerBuildings, playerStreets = self.getPlayerShit(id)
+            availableVillages = []
+            for node in self.AvailableNodes:
+                # angrenzende strasse an nodes
+                if (node[0], node[1]) in playerStreets or (node[0], node[2]) in playerStreets or (node[1], node[2]) in playerStreets:
+                    availableVillages.append(node)
+            return sorted(availableVillages)
+
+    def getAvailableCities(self, id, round=1):
+        assert round != 0, "you are not allowed to build cities."
+        playerObjects, playerBuildings, playerStreets = self.getPlayerShit(id)
+        return [x["position"] for x in playerObjects if x["type"] == Objects.VILLAGE]
+
+    def buildStuff(self, id, type, position, round=1):
+        pos = tuple(sorted(position))
+        # Street -> (x,y) in available streets(id)
+        if type == Objects.STREET:
+            assert len(pos) == 2, "invalid position"
+            assert pos in self.getAvailableStreets(id), "street not available"
+            self.ObjectList.append({"player": id, "type": type, "position": pos})
+        # Village -> (x,y,z) in availableNodes
+        elif type == Objects.VILLAGE:
+            assert len(pos) == 3, "invalid position"
+            assert pos in self.getAvailableVillages(id, round), "node not available or two streets required!"
+            self.ObjectList.append({"player": id, "type": type, "position": pos})
+            self.updateAvailableNodes(pos)
+        # City -> {player,village,(x,y,z)} in ObjectList
+        elif type == Objects.CITY:
+            assert len(pos) == 3, "invalid position"
+            assert pos in self.getAvailableCities(id), "no village available"
+            self.ObjectList.append({"player": id, "type": type, "position": pos})
+            self.ObjectList.remove({"player": id, "type": Objects.VILLAGE, "position": pos})
+        else:
+            print("incorrect type")
+            return
+
 
 if __name__ == "__main__":
     cmap = Map()
     print(cmap.TileList)
-    cmap.buildStuff("jamoinmoritz", Objects.VILLAGE, (10, 11, 17), 0)
-    cmap.buildStuff("jamoinmoritz", Objects.VILLAGE, (18, 24, 25), 0)
-    cmap.buildStuff("jamoinmoritz", Objects.STREET, (10, 17), 0)
-    cmap.buildStuff("jamoinmoritz", Objects.STREET, (24, 25), 0)
-    cmap.buildStuff("maxspdcbr", Objects.VILLAGE, (23, 24, 29), 0)
-    cmap.buildStuff("maxspdcbr", Objects.VILLAGE, (12, 13, 19), 0)
-    cmap.buildStuff("maxspdcbr", Objects.STREET, (13, 19), 0)
-    cmap.buildStuff("maxspdcbr", Objects.STREET, (23, 24), 0)
+    cmap.buildStuff(0, Objects.VILLAGE, (10, 11, 17), 0)
+    cmap.buildStuff(0, Objects.VILLAGE, (18, 24, 25), 0)
+    cmap.buildStuff(0, Objects.STREET, (10, 17), 0)
+    cmap.buildStuff(0, Objects.STREET, (24, 25), 0)
+    cmap.buildStuff(1, Objects.VILLAGE, (23, 24, 29), 0)
+    cmap.buildStuff(1, Objects.VILLAGE, (12, 13, 19), 0)
+    cmap.buildStuff(1, Objects.STREET, (13, 19), 0)
+    cmap.buildStuff(1, Objects.STREET, (23, 24), 0)
