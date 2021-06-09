@@ -313,13 +313,9 @@ class Simulation:
 
     def getRandomLegalMove(self):
         legalMoves = self.getLegalMoves()
-        a = random.choice(legalMoves)
-        print("random:" + str(a))
-        return a
+        return random.choice(legalMoves)
 
     def getNextGamestate(self, legalMove):
-        print("move:" + str(legalMove[0]))
-        print("param:" + str(legalMove[1]))
         legalMove[0](*legalMove[1])
         # return self.GS
 
@@ -359,7 +355,7 @@ if __name__ == "__main__":
     sim.drawDevelopmentCard()
     sim.drawDevelopmentCard()
     sim.getNextGamestate(sim.getRandomLegalMove())
-
+    print(sim.getAvailableStreetPositions())
     sim.endOfTurn()
     sim.getNextGamestate(sim.getRandomLegalMove())
     sim.endOfTurn()

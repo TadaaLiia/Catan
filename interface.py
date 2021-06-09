@@ -202,12 +202,14 @@ class Board():
         self.b1 = button(self.screen, (1000, 900), "  :)  ")
 
     def buildStreet(self, pos, color):
+        print(pos)
         assert type(pos) == tuple and len(pos) == 2, "Invalid Position"
         width = 6
         height_offset = 3
         # find coordinates for pos
         hexes = [hex for hex in self.hexes if hex.id in pos]
         intersecting_coordinates = list(set(hexes[0].calcHexCoordinates()) & set(hexes[1].calcHexCoordinates()))
+        print(intersecting_coordinates)
         # draw the Street
         pygame.draw.line(self.screen, color, intersecting_coordinates[0], intersecting_coordinates[1], width=6)
 
