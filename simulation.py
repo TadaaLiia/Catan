@@ -62,6 +62,7 @@ class Simulation:
     # ---- turn ----
     def roll(self):
         r = random.randrange(1, 7) + random.randrange(1, 7)
+        print(r)
         if r != 7:
             self.handOutCards(r)
         else:
@@ -322,8 +323,7 @@ class Simulation:
 
 if __name__ == "__main__":
     sim = Simulation(3)
-
-    # round 0
+# round 0
     res = [(Resources.WOOD, 10), (Resources.CLAY, 10), (Resources.WHEAT, 10), (Resources.SHEEP, 10), (Resources.ORE, 10)]
     for i in res:
         sim.giveResourceCards(sim.getCurrentPlayer().ID, i[0], i[1])
@@ -347,11 +347,17 @@ if __name__ == "__main__":
     sim.buildObject(Objects.STREET, (30, 34))
     sim.endOfTurn()
     sim.save("saves/gs1")
-    print(sim.GS.Diced)
 
     sim.load("saves/gs1")
 
-    print("Round:" + str(sim.getRound()))
+    for i in range(21):
+        print("Round:" + str(sim.getRound()))
+        print("turn:" + str(sim.GS.Turn))
+        x = sim.getRandomLegalMove()
+        print(x)
+        sim.getNextGamestate(x)
+        print("-------------------")
+    """
     sim.drawDevelopmentCard()
     sim.drawDevelopmentCard()
     sim.getNextGamestate(sim.getRandomLegalMove())
@@ -366,6 +372,7 @@ if __name__ == "__main__":
     sim.getNextGamestate(sim.getRandomLegalMove())
     sim.endOfTurn()
     print(sim.getRound())
+    """
 
     # ---- turn ----
     """
@@ -376,3 +383,8 @@ if __name__ == "__main__":
             i = self.inputCheck()
         return i
     """
+
+
+    '''
+    
+    '''

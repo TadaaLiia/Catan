@@ -366,7 +366,8 @@ class Map:
 if __name__ == "__main__":
     cmap = Map()
     # print(cmap.TileList)
-    print(cmap.Adjacency)
+    # print(cmap.Adjacency)
+    print(cmap.AvailableNodes)
     cmap.buildStuff(0, Objects.VILLAGE, (10, 11, 17), 0)
     cmap.buildStuff(0, Objects.VILLAGE, (18, 24, 25), 0)
     cmap.buildStuff(0, Objects.STREET, (10, 17), 0)
@@ -375,5 +376,7 @@ if __name__ == "__main__":
     cmap.buildStuff(1, Objects.VILLAGE, (12, 13, 19), 0)
     cmap.buildStuff(1, Objects.STREET, (13, 19), 0)
     cmap.buildStuff(1, Objects.STREET, (23, 24), 0)
+    print("-----")
+    print(cmap.AvailableNodes)
     # print(cmap.getAvailableStreets(0))
     # print(cmap.getPlayerShit(0))
