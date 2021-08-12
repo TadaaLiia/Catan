@@ -3,6 +3,8 @@ from entities import *
 from player import *
 
 
+
+
 class Map:
     """
     Representation and generation of the board
